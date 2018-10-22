@@ -4,7 +4,6 @@
  */
 var electron = require('electron');
 var win = electron.remote.getCurrentWindow();
-var $ = require("jquery");
 var $btnFS=$(".js-toggle-fs");
 /**
  * Entre ou sort du full screen

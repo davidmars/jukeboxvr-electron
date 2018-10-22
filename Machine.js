@@ -1,7 +1,11 @@
 const os = require('os');
-
-export default class Machine {
+const fs = require('fs');
+/**
+ * Permet d'obtenir l'adresse MAC et le nom de l'ordi
+ */
+class Machine {
     constructor(){
+        let me=this;
         /**
          * L'adresse mac
          * @type {string}
@@ -13,14 +17,28 @@ export default class Machine {
          */
         this.name=os.hostname();
 
-        let networks=os.networkInterfaces().Ethernet;
-        for(let adr of networks){
-            if(adr.mac){
-                this.macAddress=adr.mac;
-                break;
-            }
+        /**
+         * Chemin vers le dossier racine pour le stockage
+         * @type {string}
+         */
+        this.appStoragePath=os.homedir()+"/jukeboxvr";
+        if (!fs.existsSync(me.appStoragePath)) {
+            fs.mkdirSync(me.appStoragePath);
         }
 
+        let networks=os.networkInterfaces();
+        Object.keys(networks).forEach(function(key,index) {
+            let net=networks[key];
+            for(let adr of net){
+                if(!adr.internal){
+                    if(adr.mac){
+                        me.macAddress=adr.mac;
+                        break;
+                    }
+                }
 
+            }
+        });
     }
 }
+module.exports = Machine;

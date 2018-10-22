@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "watch-dev": "webpack --watch --config _builders/webpack.dev.js"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -19,7 +20,41 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^3.0.4",
-    "electron-builder": "^20.28.4"
+    "electron-builder": "^20.28.4",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "browser-sync": "^2.24.4",
+    "clean-webpack-plugin": "^0.1.18",
+    "copy-webpack-plugin": "^4.4.1",
+    "css-loader": "^0.28.9",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.5",
+    "grunt": "^1.0.3",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-svg-symbols": "^1.0.0",
+    "grunt-svgmin": "^5.0.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^2.30.1",
+    "install": "^0.10.4",
+    "less": "^2.7.3",
+    "less-loader": "^4.0.5",
+    "less-plugin-autoprefix": "^1.5.1",
+    "less-plugin-lists": "^1.1.1",
+    "load-grunt-tasks": "^3.5.2",
+    "md5-file": "^3.2.3",
+    "node-sass": "^4.9.0",
+    "sass-loader": "^6.0.6",
+    "sortablejs": "^1.7.0",
+    "style-loader": "^0.19.0",
+    "svg-inline-loader": "^0.8.0",
+    "uglifyjs-webpack-plugin": "^1.2.6",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.12.0",
+    "webpack-cli": "^2.1.5",
+    "webpack-merge": "^4.1.3"
   },
   "build": {
     "win": {
@@ -35,6 +70,7 @@
     }
   },
   "dependencies": {
+    "event-emitter-es6": "^1.1.5",
     "jquery": "^3.3.1"
   }
 }
