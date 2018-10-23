@@ -116,6 +116,9 @@ machine.on(EVENT_READY,function(){
 
     sync.on(EVENT_OFFLINE,function(){
         ui.setOnline(false);
+        if(ui.getCurrentScreen()==="online"){
+            ui.goScreen("local");
+        }
     });
     sync.on(EVENT_ONLINE,function(){
         ui.setOnline(true);

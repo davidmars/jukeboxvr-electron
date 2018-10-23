@@ -55,12 +55,12 @@ class UI{
 
     setOnline(online){
         if(online){
-            this.$navOnline.removeClass("text-danger");
+            this.$navOnline.removeClass("d-none");
             this.$navSync.removeClass("text-danger");
             this.chargeCatalogueOnline();
         }else{
             this.$navSync.addClass("text-danger");
-            this.$navOnline.addClass("text-danger");
+            this.$navOnline.addClass("d-none");
             this.chargeCatalogueOnline();
         }
     }
