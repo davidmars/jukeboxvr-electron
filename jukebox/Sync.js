@@ -15,6 +15,19 @@ class Sync extends EventEmitter{
         super();
 
         let me=this;
+
+        /**
+         * Selon si on est online ou pas
+         * @type {boolean}
+         */
+        this.isOnline=null;
+
+        /**
+         * True si une mise à jour est en cours
+         * @type {boolean}
+         */
+        this.syncing=false;
+
         /**
          * @private
          * @type {string} Répertoire de stockage des fichiers de l'application
@@ -53,25 +66,34 @@ class Sync extends EventEmitter{
 
         //teste si le json existe
         if (fs.existsSync(this.jsonPath)) {
-            console.log("sync.json va être mis à jour...");
             let json = fs.readFileSync(me.jsonPath);
             json = JSON.parse(json);
             me.data = json;
-            console.log("me.data", me.data);
             me.synchroId = me.data.json.synchroId;
-            logs.log("la version précédente du contenu était " + this.synchroId)
+            logs.log("la version du contenu est " + this.synchroId);
         } else {
             logs.log("sync.json va être téléchargé pour la première fois...");
         }
-
         me.doIt();
-
+        setInterval(function(){
+            me.doIt();
+        },1000*window.conf.synchroDelaySeconds)
     }
 
     doIt(){
+        if(this.syncing){
+            return;
+        }
+
         let me=this;
+        me.syncing=true;
+        me.emit(EVENT_SYNCING);
         this.dwdJson(
             function(json){
+                if(!me.isOnline){
+                    me.emit(EVENT_ONLINE);
+                    me.isOnline=true;
+                }
                 if(json.success){
                     if(json.json.synchroId !== me.synchroId){
                         me.setNewJson(json);
@@ -82,7 +104,7 @@ class Sync extends EventEmitter{
                     me.dwdNext();
                 }else{
                     for(let err of json.errors){
-                        me.emit('EVENT_ERROR',err);
+                        me.emit(EVENT_ERROR,err);
                     }
                 }
 
@@ -90,7 +112,15 @@ class Sync extends EventEmitter{
             function(){
                 console.error("synchronisation impossible");
                 console.error("impossible de télécharger "+me.syncUrl)
-                me.emit('EVENT_ERROR',"impossible de télécharger "+me.syncUrl);
+                me.emit(EVENT_ERROR,"impossible de télécharger "+me.syncUrl);
+
+                if(me.isOnline!==false){
+                    me.emit(EVENT_OFFLINE);
+                    me.isOnline=false;
+                }
+                me.syncing=false;
+                me.emit(EVENT_READY);
+
             }
         )
     }
@@ -137,38 +167,38 @@ class Sync extends EventEmitter{
      * @private
      */
     dwdNext(){
-        this.emit('EVENT_UPDATING');
+        this.emit(EVENT_UPDATING);
         let me=this;
-        console.log("me.data (again)",me.data);
+        /** @property {ContenuModel} contenu */
         for(let contenu of me.data.json.contenus){
-            console.log(contenu.name);
-            let local;
+
+            //à chaque fois qu'un fichier doit être téléchargé rapelle la fonction en récusrsif.
 
             //dwd thumb
-            local=this.localStoragePath+"/"+contenu.localThumb;
-            FileSystemUtils.ensureDirectoryExistence(local);
-            if(!fs.existsSync(local)){
-                this.emit('EVENT_DOWNLOADING',"thumb " + contenu.serverThumb);
-                console.log("Téléchargement depuis "+contenu.serverThumb);
-                FileSystemUtils.download(contenu.serverThumb,local,function(){
+            contenu.localThumbAbsolute=this.localStoragePath+"/"+contenu.localThumb;
+            FileSystemUtils.ensureDirectoryExistence(contenu.localThumbAbsolute);
+            if(!fs.existsSync(contenu.localThumbAbsolute)){
+                this.emit(EVENT_DOWNLOADING,"thumb " + contenu.serverThumb);
+                FileSystemUtils.download(contenu.serverThumb,contenu.localThumbAbsolute,function(){
                     me.dwdNext();
                 });
                 return;
             }
 
             //dwd le gros fichier
-            local=this.localStoragePath+"/"+contenu.localFile;
-            FileSystemUtils.ensureDirectoryExistence(local);
-            if(!fs.existsSync(local)){
-                this.emit('EVENT_DOWNLOADING',"file " + contenu.serverFile);
-                console.log("Téléchargement depuis "+contenu.serverFile);
-                FileSystemUtils.download(contenu.serverFile,local,function(){
+            contenu.localFileAbsolute=this.localStoragePath+"/"+contenu.localFile;
+            FileSystemUtils.ensureDirectoryExistence(contenu.localFileAbsolute);
+            if(!fs.existsSync(contenu.localFileAbsolute)){
+                this.emit(EVENT_DOWNLOADING,"file " + contenu.serverFile);
+                FileSystemUtils.download(contenu.serverFile,contenu.localFileAbsolute,function(){
                     me.dwdNext();
                 });
                 return;
             }
         }
-        this.emit('EVENT_UPDATED');
+        me.emit(EVENT_UPDATED);
+        me.emit(EVENT_READY);
+        me.syncing=false;
 
     }
 

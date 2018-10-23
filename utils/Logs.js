@@ -12,15 +12,15 @@ class Logs extends EventEmitter{
      */
     log(string){
         this.html = "<div class='log'>" + string + "</div>" + this.html;
-        this.emit("EVENT_CHANGE");
+        this.emit(EVENT_CHANGE);
     }
     error(string) {
         this.html = "<div class='error'>" + string + "</div>" + this.html;
-        this.emit("EVENT_CHANGE");
+        this.emit(EVENT_CHANGE);
     }
     success(string) {
         this.html = "<div class='success'>" + string + "</div>" + this.html;
-        this.emit("EVENT_CHANGE");
+        this.emit(EVENT_CHANGE);
     }
 
 }
