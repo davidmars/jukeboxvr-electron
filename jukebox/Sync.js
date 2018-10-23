@@ -72,18 +72,25 @@ class Sync extends EventEmitter{
         let me=this;
         this.dwdJson(
             function(json){
-                if(json.json.synchroId !== me.synchroId){
-                    me.setNewJson(json);
-                    logs.error("Mise à jour du contenu nécessaire");
+                if(json.success){
+                    if(json.json.synchroId !== me.synchroId){
+                        me.setNewJson(json);
+                        logs.error("Mise à jour du contenu nécessaire");
+                    }else{
+                        logs.success("Votre contenu est à jour");
+                    }
+                    me.dwdNext();
                 }else{
-                    logs.success("Votre contenu est à jour");
+                    for(let err of json.errors){
+                        me.emit('EVENT_ERROR',err);
+                    }
                 }
-                me.dwdNext();
+
             },
             function(){
                 console.error("synchronisation impossible");
                 console.error("impossible de télécharger "+me.syncUrl)
-                this.emit('EVENT_ERROR');
+                me.emit('EVENT_ERROR',"impossible de télécharger "+me.syncUrl);
             }
         )
     }
@@ -112,7 +119,7 @@ class Sync extends EventEmitter{
         let me = this;
         $.ajax(this.syncUrl,{
             data:{
-                machinetoken:me.machine.macAddress,
+                machinetoken:me.machine.machineId,
                 machinename:me.machine.name,
             },
             success:function(data){
@@ -135,9 +142,25 @@ class Sync extends EventEmitter{
         console.log("me.data (again)",me.data);
         for(let contenu of me.data.json.contenus){
             console.log(contenu.name);
-            let local=this.localStoragePath+"/"+contenu.localFile;
+            let local;
+
+            //dwd thumb
+            local=this.localStoragePath+"/"+contenu.localThumb;
             FileSystemUtils.ensureDirectoryExistence(local);
             if(!fs.existsSync(local)){
+                this.emit('EVENT_DOWNLOADING',"thumb " + contenu.serverThumb);
+                console.log("Téléchargement depuis "+contenu.serverThumb);
+                FileSystemUtils.download(contenu.serverThumb,local,function(){
+                    me.dwdNext();
+                });
+                return;
+            }
+
+            //dwd le gros fichier
+            local=this.localStoragePath+"/"+contenu.localFile;
+            FileSystemUtils.ensureDirectoryExistence(local);
+            if(!fs.existsSync(local)){
+                this.emit('EVENT_DOWNLOADING',"file " + contenu.serverFile);
                 console.log("Téléchargement depuis "+contenu.serverFile);
                 FileSystemUtils.download(contenu.serverFile,local,function(){
                     me.dwdNext();
