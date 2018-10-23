@@ -5,12 +5,14 @@ class FileWatcher {
             console.log('event is: ' + event);
             if (filename) {
                 console.log('filename provided: ' + filename);
-                if(filename==="app.css"){
-                    let $link=$("[data-file='"+filename+"']");
+                //if(filename==="app.css"){
+                    let $link=$("link[data-file='"+filename+"']");
                     if($link.length){
                         $link.attr("href",$link.attr("data-dir")+"/"+filename+"?"+Math.random());
+                    }else{
+                        console.warn("css à remplacer introuvable "+filename);
                     }
-                }
+                //}
             } else {
                 console.log('filename not provided');
             }
