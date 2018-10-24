@@ -36,10 +36,17 @@ if(isDevelopment){
     const FileWatcher=require("./dev/FileWatcher");
     let watcher=new FileWatcher();
 }
-//conf
+//confs
 const Conf=require("./jukebox/Conf");
-let conf=window.conf=new Conf();
-conf.serverRoot="http://localhost/github/jukebox-vr/fr";
+let confLocal=new Conf();
+confLocal.serverRoot="http://localhost/github/jukebox-vr/fr";
+confLocal.appDirectoryStorageName="jukeboxvr/localhost";
+let confOnline=new Conf();
+confOnline.serverRoot="http://jukeboxvr.fr";
+confOnline.appDirectoryStorageName="jukeboxvr/prod";
+//conf.serverRoot="https://jukeboxvr.fr";
+
+window.conf=confOnline;
 
 //logs
 var Logs = require("./utils/Logs");

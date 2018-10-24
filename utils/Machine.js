@@ -1,5 +1,6 @@
 const os = require('os');
 const fs = require('fs');
+const FileSystemUtils = require('./FileSystemUtils');
 const EventEmitter = require("event-emitter-es6");
 /**
  * Permet d'obtenir l'adresse MAC et le nom de l'ordi
@@ -36,7 +37,7 @@ class Machine extends EventEmitter{
          */
         this.appStoragePath=os.homedir()+"/"+window.conf.appDirectoryStorageName;
         if (!fs.existsSync(me.appStoragePath)) {
-            fs.mkdirSync(me.appStoragePath);
+            FileSystemUtils.ensureDirectoryExistence(me.appStoragePath+"/test.txt");
         }
     }
 }
