@@ -1,4 +1,5 @@
 const http = require('http');
+var https = require('https');
 const path = require('path');
 const fs = require('fs');
 
@@ -27,8 +28,13 @@ class FileSystemUtils {
      * @param {function} cb Une fois que c'est fini
      */
     static download(url, dest, cb) {
+
+        var client = http;
+        if (url.toString().indexOf("https") === 0){
+            client = https;
+        }
         let file = fs.createWriteStream(dest);
-        let request = http.get(url, function(response) {
+        let request = client.get(url, function(response) {
             response.pipe(file);
             file.on('finish', function() {
                 file.close(cb);  // close() is async, call cb after close completes.

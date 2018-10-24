@@ -38,13 +38,15 @@ if(isDevelopment){
 }
 //confs
 const Conf=require("./jukebox/Conf");
+
 let confLocal=new Conf();
 confLocal.serverRoot="http://localhost/github/jukebox-vr/fr";
 confLocal.appDirectoryStorageName="jukeboxvr/localhost";
+
 let confOnline=new Conf();
-confOnline.serverRoot="http://jukeboxvr.fr";
+confOnline.serverRoot="https://jukeboxvr.fr"; //
 confOnline.appDirectoryStorageName="jukeboxvr/prod";
-//conf.serverRoot="https://jukeboxvr.fr";
+
 
 window.conf=confOnline;
 
