@@ -1,6 +1,7 @@
 const electron = require('electron');
 const win = electron.remote.getCurrentWindow();
 const fs = require("fs");
+const path = require('path');
 const ContenuModel = require("./ContenuModel");
 /**
  * L'interface utilisateur
@@ -9,7 +10,7 @@ const ContenuModel = require("./ContenuModel");
 class UI{
     constructor(){
         //injecte la nav
-        let $nav=this.$template("jukebox/nav/nav.html");
+        let $nav=this.$template("jukebox/nav.html");
         $body.prepend($nav);
         //charge le catalogue
         this.chargeCatalogueOnline();
@@ -29,7 +30,6 @@ class UI{
 
 
         this.$navOnline=$('[data-nav-screen="online"]');
-        this.$navLocal=$('[data-nav-screen="local"]');
         this.$navSync=$('.js-sync');
     }
 

@@ -78,9 +78,11 @@ machine.on(EVENT_READY,function(){
     let ui=window.ui=new UI();
 
     //app infos
+    logs.log("App v0.0.1: "+process.versions.node);
     logs.log("Node v: "+process.versions.node);
     logs.log("Chromium v: "+process.versions.chrome);
     logs.log("Electron v: "+process.versions.electron);
+    logs.log("Server: "+conf.serverRoot);
 
     //------------ Machine name & MAC-----------------
 
@@ -110,6 +112,8 @@ machine.on(EVENT_READY,function(){
     sync.on(EVENT_ERROR,function(err){
         document.title="Sync "+err;
         logs.error(err);
+        ui.goScreen("splash-screen");
+        ui.$navSync.removeClass("syncing");
     });
     sync.on("EVENT_READY",function(err){
         //document.title="Sync "+err;

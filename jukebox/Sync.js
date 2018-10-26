@@ -104,6 +104,7 @@ class Sync extends EventEmitter{
                     me.dwdNext();
                 }else{
                     for(let err of json.errors){
+                        me.syncing=false;
                         me.emit(EVENT_ERROR,err);
                     }
                 }

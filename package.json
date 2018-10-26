@@ -1,7 +1,7 @@
 {
-  "name": "electron-quick-start",
+  "name": "JukeboxVR",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "Yo!",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -51,6 +51,8 @@
   },
   "build": {
     "win": {
+      "asar":true,
+      "extraFiles":["jukebox/*.html"],
       "target": [
         {
           "target": "portable",

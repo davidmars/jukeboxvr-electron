@@ -85,7 +85,7 @@ var cssOptions={
 
 module.exports = {
     entry: {
-        "webpack-main":        "./webpack-main.js", //le site pour monsieur tout le monde,
+        "main":        "./dev/webpack-main.js", //le site pour monsieur tout le monde,
     },
     output: {
         filename: '[name].js',
