@@ -1,6 +1,6 @@
 {
-  "name": "JukeboxVR",
-  "version": "1.0.0",
+  "name": "jukeboxvr-electron",
+  "version": "1.0.3",
   "description": "Yo!",
   "main": "main.js",
   "scripts": {
@@ -53,6 +53,7 @@
   "build": {
     "appId":"com.github.davidmars.jukeboxvr-electron",
     "win": {
+      "publish": ["github"],
       "asar": true,
       "extraFiles": [
         "jukebox/*.html"
