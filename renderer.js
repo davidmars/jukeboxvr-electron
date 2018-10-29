@@ -2,6 +2,9 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
+const {app, BrowserWindow} = require('electron');
+const electron = require('electron');
+
 //ne pas afficher les message de sécurité relous
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS=true;
 
@@ -14,7 +17,6 @@ window.EVENT_UPDATING="EVENT_UPDATING";
 window.EVENT_DOWNLOADING="EVENT_DOWNLOADING";
 window.EVENT_UPDATED="EVENT_UPDATED";
 window.EVENT_CHANGE="EVENT_CHANGE";
-
 
 /**
  * Dev ou build ?
@@ -34,8 +36,17 @@ var $body = window.$body=$("body");
 
 if(isDevelopment){
     const FileWatcher=require("./dev/FileWatcher");
-    let watcher=new FileWatcher();
+    new FileWatcher();
+}else{
+
+
 }
+
+
+
+
+
+
 //confs
 const Conf=require("./jukebox/Conf");
 
@@ -78,7 +89,7 @@ machine.on(EVENT_READY,function(){
     let ui=window.ui=new UI();
 
     //app infos
-    logs.log("App v1.0.2: "+process.versions.node);
+    logs.success("App V: "+electron.remote.app.getVersion());
     logs.log("Node v: "+process.versions.node);
     logs.log("Chromium v: "+process.versions.chrome);
     logs.log("Electron v: "+process.versions.electron);

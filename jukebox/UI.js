@@ -26,6 +26,7 @@ class UI{
          * @type {*|jQuery|HTMLElement}
          */
         this.$logs=$("#logs");
+        this.$logLine=$("#logline");
 
 
 
@@ -139,6 +140,10 @@ class UI{
     static toggleFS(){
         win.setFullScreen(!win.isFullScreen());
         win.setMenuBarVisibility(!win.isFullScreen());
+    }
+
+    logLine(message){
+        this.$logLine.text(message);
     }
 }
 module.exports = UI;
