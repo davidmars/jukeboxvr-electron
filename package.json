@@ -1,7 +1,7 @@
 {
   "name": "jukeboxvr-electron",
-  "version": "1.1.0",
-  "description": "Yo!",
+  "version": "1.1.1",
+  "description": "Rendez-vous sur JUKEBOXVR.FR",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -63,14 +63,16 @@
       "target": [
         {
           "target": "nsis",
-          "createDesktopShortcut":"always",
-          "createStartMenuShortcut":"always",
           "arch": [
             "x64",
             "ia32"
           ]
         }
       ]
+    },
+    "nsis":{
+      "createDesktopShortcut":"always",
+      "createStartMenuShortcut":true
     }
   },
   "dependencies": {
