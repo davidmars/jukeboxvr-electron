@@ -63,6 +63,8 @@
       "target": [
         {
           "target": "nsis",
+          "createDesktopShortcut":"always",
+          "createStartMenuShortcut":"always",
           "arch": [
             "x64",
             "ia32"
