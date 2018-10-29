@@ -11,13 +11,12 @@
   },
   "repository": "https://github.com/davidmars/jukeboxvr-electron",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "jukeboxvr",
+    "cayceo",
+    "virtual reality",
+    "vr"
   ],
-  "author": "GitHub",
+  "author": "davidmars",
   "license": "CC0-1.0",
   "devDependencies": {
     "electron": "^3.0.4",
