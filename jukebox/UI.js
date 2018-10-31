@@ -9,9 +9,13 @@ const ContenuModel = require("./ContenuModel");
  */
 class UI{
     constructor(){
+        //injecte les icones svg
+        let $svg=this.$template("jukebox/svg-collection/jukebox.svg");
+        $body.append($svg);
         //injecte la nav
         let $nav=this.$template("jukebox/nav.html");
         $body.prepend($nav);
+
         //charge le catalogue
         this.chargeCatalogueOnline();
         //initialise les écouteurs
@@ -20,6 +24,10 @@ class UI{
          * Conteneur des contenus
          */
         this.$contenus=$body.find("#contenus");
+        /**
+         * Conteneur des casques
+         */
+        this.$casques=$body.find("#casques");
 
         /**
          * Element html où sont inscrites les logs
@@ -45,6 +53,11 @@ class UI{
         }
     }
 
+
+
+
+
+
     /**
      * @private
      * @param data
@@ -52,6 +65,14 @@ class UI{
     addContenu(data){
         let contenu=new ContenuModel(data);
         this.$contenus.append(contenu.$display());
+    }
+
+    /**
+     *
+     * @param {Casque} casque
+     */
+    addCasque(casque){
+        this.$casques.append(casque.$display());
     }
 
     setOnline(online){

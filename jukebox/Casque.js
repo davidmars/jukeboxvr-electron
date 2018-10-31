@@ -1,11 +1,11 @@
 class Casque {
 
-    constructor(){
+    constructor(identifier){
         /**
          * Identifiant du casque
          * @type {string}
          */
-        this.identifier="";
+        this.identifier=identifier;
 
         /**
          * Contenu en cours de lecture
@@ -70,13 +70,17 @@ class Casque {
      */
     $display(){
         let me=this;
+        /**
+         *
+         * @type {*|jQuery|HTMLElement}
+         */
         let $template=$("[data-casque='"+me.identifier*+"']");
         if(!$template.length){
-            let $template=window.ui.$template("jukebox/casque.html");
+            $template=window.ui.$template("jukebox/casque.html");
             $template.attr("data-casque",me.identifier);
             $template.find(".identifier").text(me.identifier);
-
         }
+        console.log($template)
         return $template;
     }
 

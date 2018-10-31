@@ -1,5 +1,6 @@
 body,html{
-
+  --nav-height:51px;
+  overflow-x: hidden;
 }
 @import "jukebox/_base/variables-screen";
 @import "jukebox/_base/spacing";
@@ -9,8 +10,11 @@ body,html{
 @import "jukebox/data-screen";
 @import "jukebox/data-screen-online";
 @import "jukebox/data-screen-local";
-@import "jukebox/contenu-row.less";
-@import "jukebox/contenu-col.less";
+
+
+.u-hidden{
+  display: none;
+}
 
 
 @import "jukebox/bs-theme/bs-theme-main";

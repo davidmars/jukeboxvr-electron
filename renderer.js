@@ -156,6 +156,21 @@ machine.on(EVENT_READY,function(){
     });
 
 
+
+    //--------------casques-----------------
+
+
+    const Casque=require("./jukebox/Casque");
+
+    for(let i=1;i<=15;i++){
+        let casque=new Casque(i);
+        ui.addCasque(casque);
+        console.log("casque",casque);
+    }
+
+
+
+
 });
 
 
