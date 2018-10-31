@@ -3,4 +3,26 @@
     width: 100%;
     flex-shrink: 0;
   }
+
+  --casques-w:300px;
+
+  #casques,#contenus{
+    outline: 1px dotted red;
+    position: absolute;
+    top: 0;
+    height: 100%;
+  }
+
+  #casques{
+    width: var(--casques-w);
+    left: 0;
+    top: 0;
+  }
+  #contenus{
+    left: var(--casques-w);
+    width: calc( 100% - var(--casques-w) );
+  }
+
+
+
 }

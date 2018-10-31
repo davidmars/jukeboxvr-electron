@@ -69,9 +69,9 @@
         }
       ]
     },
-    "nsis":{
-      "createDesktopShortcut":"always",
-      "createStartMenuShortcut":true
+    "nsis": {
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true
     }
   },
   "dependencies": {

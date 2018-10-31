@@ -13,8 +13,11 @@ function createWindow () {
   mainWindow = new BrowserWindow({width: 800, height: 600});
     if(electron.screen.getAllDisplays().length>1){
         mainWindow.setPosition(electron.screen.getAllDisplays()[1].bounds.x,0);
+        mainWindow.setSize(1024,600);
+        mainWindow.setMenuBarVisibility(false);
+
     }
-    mainWindow.maximize();
+    //mainWindow.maximize();
     mainWindow.webContents.openDevTools();
 
   // and load the index.html of the app.

@@ -89,7 +89,7 @@ machine.on(EVENT_READY,function(){
     let ui=window.ui=new UI();
 
     //app infos
-    logs.success("App V: "+electron.remote.app.getVersion());
+    logs.success("App v: "+electron.remote.app.getVersion());
     logs.log("Node v: "+process.versions.node);
     logs.log("Chromium v: "+process.versions.chrome);
     logs.log("Electron v: "+process.versions.electron);
