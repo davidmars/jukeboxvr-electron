@@ -1,0 +1,62 @@
+.battery{
+  width: 24px;
+  height: 24px;
+  position: relative;
+
+  >.text{
+    position: absolute;
+    //font-family: monospace;
+    font-size: 9px;
+    //background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: -8px;
+    left: 0px;
+    width: 24px;
+    height: 15px;
+    overflow: hidden;
+  }
+
+  >svg{
+    width: 100%;
+    height: 100%;
+    >use{
+      opacity: 0;
+    }
+  }
+
+  color: var(--gray);
+
+  &[data-level="0"],&[data-level="10"]{
+    color: var(--danger);
+    .level-0{
+      opacity: 1;
+    }
+  }
+  &[data-level="20"],&[data-level="30"]{
+    color: var(--warning);
+    .level-30{
+      opacity: 1;
+    }
+  }
+  &[data-level="40"],&[data-level="50"],&[data-level="60"],&[data-level="70"],&[data-level="80"]{
+    .level-60{
+      opacity: 1;
+    }
+  }
+  &[data-level="90"],&[data-level="100"]{
+    color: var(--success);
+    .level-100{
+      opacity: 1;
+    }
+  }
+  &.charging{
+    use{
+      opacity: 0;
+    }
+    .level-charge{
+      opacity: 1;
+    }
+  }
+}

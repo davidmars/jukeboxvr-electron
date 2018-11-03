@@ -159,11 +159,10 @@ machine.on(EVENT_READY,function(){
 
     //--------------casques-----------------
 
-
-    const Casque=require("./jukebox/Casque");
+    const Casque=require("./jukebox/casque/Casque");
 
     for(let i=1;i<=15;i++){
-        let casque=new Casque(i);
+        let casque=new Casque(String(i));
         ui.addCasque(casque);
         console.log("casque",casque);
     }
