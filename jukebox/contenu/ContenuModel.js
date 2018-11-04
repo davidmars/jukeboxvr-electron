@@ -1,4 +1,4 @@
-
+const Casque = require("../casque/Casque");
 /**
  * Représente un contenu
  */
@@ -31,13 +31,19 @@ class ContenuModel {
      */
     $display(){
         let me=this;
-        let $template=window.ui.$template("jukebox/contenu.html");
-        $template.find(".js-title").text(this.name)
+        let $template=window.ui.$template("jukebox/contenu/contenu.html");
+        $template.find(".js-title").text(this.name);
         $template.find("img.card-img-top").attr("src",this.localThumbAbsolute);
         $template.on("click",function(e){
-           window.mediaPlayer.play(me.localFileAbsolute);
+           Casque.setContenuSelecteds(me);
         });
+
+
+
         return $template;
+
+
+
     }
 
 }

@@ -1,3 +1,4 @@
+
 class Casque {
 
     constructor(identifier){
@@ -75,16 +76,17 @@ class Casque {
         }
 
         //play progress
-        //if(this.contenu){
-
+        if(this.contenu){
+            /*
             if(Math.random()>0.999){
                 this.playTime=0;
                 this.totalTime=Math.round(60+Math.random()*(60*2));
             }
+            */
             this.playTime+=1/10;
             this.playTime=Math.min(this.totalTime,this.playTime);
 
-        //}
+        }
 
     }
 
@@ -97,11 +99,14 @@ class Casque {
     setContenu(contenu){
         this.contenu=contenu;
         if(this.contenu){
+            this.playTime=0;
+            this.totalTime=60;
             this.$contenuImg.attr("src",this.contenu.localThumbAbsolute);
             this.$contenuName.text(this.contenu.name);
-            this.$display().find(".contenu").removeClass("invisible");
+            //this.$display().find(".contenu").removeClass("invisible");
         }else{
-            this.$display().find(".contenu").addClass("invisible");
+            this.$contenuImg.attr("src","jukebox/casque/placeholder.jpg");
+            this.$contenuName.text(this.contenu.name);
         }
 
     }
@@ -176,7 +181,7 @@ class Casque {
     $display(){
         let me=this;
         if(!me.$el){
-            me.$el=window.ui.$template("jukebox/casque.html");
+            me.$el=window.ui.$template("jukebox/casque/casque.html");
             me.$el.attr("data-casque",me.identifier);
             me.$el.find(".identifier").text(me.identifier);
         }
@@ -187,7 +192,8 @@ class Casque {
         this.$playCurrent=me.$el.find(".play-current-time");
         this.$playProgress=me.$el.find(".play-progress");
         this.$contenuName=me.$el.find(".contenu-name");
-        this.$contenuImg=me.$el.find("img");
+        this.$contenuImg=me.$el.find(".img");
+        window.ui.setImgSrc("jukebox/casque/placeholder.jpg",this.$contenuImg);
 
         me.$el.on("click",function(){
             me.toggleSelected()
@@ -215,6 +221,17 @@ class Casque {
 
     isSelected(){
         return this.$el.is('.selected');
+    }
+
+    /**
+     *
+     * @param {ContenuModel} contenu
+     */
+    static setContenuSelecteds(contenu){
+        for(let c of Casque.selecteds()){
+            c.setContenu(contenu);
+        }
+        Casque.unselectAll();
     }
 
     /**

@@ -2,7 +2,7 @@ const electron = require('electron');
 const win = electron.remote.getCurrentWindow();
 const fs = require("fs");
 const path = require('path');
-const ContenuModel = require("./ContenuModel");
+const ContenuModel = require("./contenu/ContenuModel");
 /**
  * L'interface utilisateur
  * @type {Electron}
@@ -96,6 +96,30 @@ class UI{
     $template(htmlFilePath){
         let template = fs.readFileSync(htmlFilePath,{encoding: 'utf-8'});
         return $(template);
+    }
+
+    /**
+     * Pour charger une image statique
+     * @param {string} imgUrl
+     * @param {*|jQuery|HTMLElement} $img
+     */
+    setImgSrc(imgUrl,$img){
+        $img.attr("src",this.base64_encode(imgUrl));
+    }
+
+    /**
+     * Retourne l'url base 64 d'une image
+     * @private
+     * @param file
+     * @return {string}
+     */
+    base64_encode(file) {
+        let imgPath = file;
+        // read binary data
+        var bitmap = fs.readFileSync(imgPath);
+        // convert binary data to base64 encoded string
+        let buff= Buffer.from(bitmap).toString('base64');
+        return "data:image/png;base64,"+buff;
     }
 
     /**

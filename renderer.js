@@ -78,9 +78,6 @@ let machine=window.machine=new Machine();
 
 machine.on(EVENT_READY,function(){
 
-    const MediaPlayer=require("./jukebox/MediaPlayer");
-    window.mediaPlayer = new MediaPlayer();
-
     const WebServer=require("./jukebox/WebServer");
     window.webServer = new WebServer();
 
