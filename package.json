@@ -57,7 +57,10 @@
       ],
       "asar": true,
       "extraFiles": [
-        "jukebox/*.html"
+        "jukebox/**/*.html",
+        "jukebox/**/*.svg",
+        "jukebox/**/*.png",
+        "jukebox/**/*.jpg"
       ],
       "target": [
         {
