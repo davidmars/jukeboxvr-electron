@@ -2,25 +2,29 @@
   width: 24px;
   height: 24px;
   position: relative;
+  margin-top: -5px;
+
+  >*{
+    //outline: 1px solid red;
+  }
 
   >.text{
-    position: absolute;
     //font-family: monospace;
     font-size: 9px;
     //background-color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
-    top: -8px;
     left: 0px;
     width: 24px;
-    height: 15px;
     overflow: hidden;
+    font-weight: 400;
   }
 
   >svg{
-    width: 100%;
-    height: 100%;
+    margin-top: -1px;
+    width: 22px;
+    height: 18px;
     >use{
       opacity: 0;
     }
@@ -36,27 +40,42 @@
   }
   &[data-level="20"],&[data-level="30"]{
     color: var(--warning);
-    .level-30{
+    .level-25{
       opacity: 1;
     }
   }
-  &[data-level="40"],&[data-level="50"],&[data-level="60"],&[data-level="70"],&[data-level="80"]{
-    .level-60{
+  &[data-level="40"],&[data-level="50"],&[data-level="60"]{
+    .level-50{
       opacity: 1;
     }
   }
-  &[data-level="90"],&[data-level="100"]{
+  &[data-level="70"],&[data-level="80"]{
+    .level-75{
+      opacity: 1;
+    }
+  }
+ &[data-level="90"],&[data-level="100"]{
     color: var(--success);
     .level-100{
       opacity: 1;
     }
   }
   &.charging{
-    use{
-      opacity: 0;
+    svg{
+      animation-name: motion-fade;
+      animation-direction: alternate;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
     }
-    .level-charge{
-      opacity: 1;
-    }
+
+  }
+}
+
+@keyframes motion-fade {
+  0%{
+    opacity: 0.1;
+  }
+  100%{
+    opacity: 1;
   }
 }
