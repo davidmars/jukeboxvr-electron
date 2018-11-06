@@ -78,6 +78,7 @@
     }
   },
   "dependencies": {
+    "adbkit": "^2.11.0",
     "electron-log": "^2.2.17",
     "electron-updater": "^3.1.2",
     "event-emitter-es6": "^1.1.5",

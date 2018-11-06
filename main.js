@@ -10,15 +10,21 @@ let mainWindow;
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1024, height: 600});
+
+    //déplace la fenetre sur 2 eme écran
     if(electron.screen.getAllDisplays().length>1){
-        //mainWindow.setPosition(electron.screen.getAllDisplays()[1].bounds.x,0);
+        mainWindow.setPosition(electron.screen.getAllDisplays()[1].bounds.x,0);
     }
-    mainWindow.setSize(1024,600);
-    mainWindow.setMenuBarVisibility(false);
-    mainWindow.setAlwaysOnTop(true, "main-menu");
-    //mainWindow.maximize();
-    //mainWindow.setFullScreen(true);
     mainWindow.webContents.openDevTools();
+    mainWindow.maximize();
+
+
+    //mainWindow.setSize(1024,600);
+    mainWindow.setMenuBarVisibility(false);
+    //mainWindow.setAlwaysOnTop(true, "main-menu");
+
+    //mainWindow.setFullScreen(true);
+
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html');
@@ -34,8 +40,6 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   });
-
-
 
     function logg(str){
         mainWindow.webContents.executeJavaScript('console.log("'+str+'")');
