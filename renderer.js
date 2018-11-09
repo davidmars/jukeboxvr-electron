@@ -43,45 +43,6 @@ if(isDevelopment){
 }
 
 
-//test ADB
-var adb = require('adbkit')
-var client = adb.createClient();
-
-client.trackDevices()
-    .then(function(tracker) {
-        tracker.on('add', function(device) {
-            console.log('Device %s was plugged in', device.id);
-
-            client.push(device.id, 'README.md', '/data/local/tmp/foo.md')
-                .then(function(transfer) {
-                    return new Promise(function(resolve, reject) {
-                        transfer.on('progress', function(stats) {
-                            console.log('[%s] Pushed %d bytes so far',
-                                device.id,
-                                stats.bytesTransferred)
-                        });
-                        transfer.on('end', function() {
-                            console.log('[%s] Push complete', device.id)
-                            resolve()
-                        });
-                        transfer.on('error', reject)
-                    })
-                })
-
-        });
-        tracker.on('remove', function(device) {
-            console.log('Device %s was unplugged', device.id)
-        });
-        tracker.on('end', function() {
-            console.log('Tracking stopped')
-        });
-    })
-    .catch(function(err) {
-        console.error('Something went wrong:', err.stack)
-    });
-
-
-
 
 //confs
 const Conf=require("./jukebox/Conf");
@@ -193,13 +154,7 @@ machine.on(EVENT_READY,function(){
     //--------------casques-----------------
 
     const Casque=require("./jukebox/casque/Casque");
-
-    for(let i=1;i<=15;i++){
-        let casque=new Casque(String(i));
-        ui.addCasque(casque);
-        console.log("casque",casque);
-    }
-
+    Casque.initAll();
 
 
 

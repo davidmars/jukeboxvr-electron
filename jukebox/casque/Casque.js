@@ -1,16 +1,69 @@
+const FileSystemUtils=require("../../utils/FileSystemUtils");
+const fs = require("fs");
+
+
+
 
 class Casque {
 
-    constructor(identifier){
+    static getCasqueByDeviceId( deviceId ){
+
+        console.log("deviceId", deviceId);
+        if ( Casque.allByDeviceId[deviceId] )
+        {
+            return Casque.allByDeviceId[deviceId];
+        }
+
+        if ( Casque.data.casques[deviceId]  )
+        {
+            return new Casque(Casque.data.casques[deviceId].identifier,deviceId);
+        }
+        else
+        {
+            const dialog = require('electron').remote.dialog;
+            const options = {
+                type: 'question',
+                buttons: ['1', '2', '3' , '4','5',"annuler"],
+                defaultId: 5,
+                title: 'Question',
+                message: 'CHOISI CONNARD'
+            };
+
+            dialog.showMessageBox(null, options, (response) => {
+
+                if ( response === 6  )
+                {
+                    return null;
+                }
+                else
+                {
+                    Casque.data.casques[deviceId]={};
+                    Casque.data.casques[deviceId].identifier=response+1;
+                    Casque.saveConfig();
+                    return Casque.getCasqueByDeviceId(deviceId);
+                }
+
+            });
+
+
+        }
+
+
+    }
+
+    constructor(identifier , deviceId){
 
         let me=this;
         Casque.all.push(this);
+        Casque.allByDeviceId[deviceId] = this;
 
         /**
          * Identifiant du casque
          * @type {string}
          */
         this.identifier=identifier;
+
+
 
         /**
          * Contenu en cours de lecture
@@ -56,7 +109,7 @@ class Casque {
 
         this.$contenuName=null;
         this.$contenuImg=null;
-
+        window.ui.addCasque(this);
     }
 
     /**
@@ -89,6 +142,90 @@ class Casque {
         }
 
     }
+
+    static initAll() {
+
+
+
+        //teste si le json existe
+        if (fs.existsSync(Casque.configPath)) {
+            let json = fs.readFileSync(Casque.configPath);
+            json = JSON.parse(json);
+            Casque.data = json;
+
+        } else {
+            console.log("config.json n'éxiste pas !");
+            FileSystemUtils.ensureDirectoryExistence(Casque.configPath);
+            Casque.data = { casques:{} };
+
+            Casque.saveConfig();
+
+
+        }
+
+        for( let deviceId in Casque.data.casques )
+        {
+            if(!Casque.data.casques.hasOwnProperty(deviceId)) continue;
+            Casque.getCasqueByDeviceId(deviceId);
+        }
+
+        Casque.initADB();
+
+
+    }
+
+
+    static initADB(){
+
+
+
+//test ADB
+        var adb = require('adbkit');
+        var client = adb.createClient();
+
+        client.trackDevices()
+            .then(function(tracker) {
+                tracker.on('add', function(device) {
+                    console.log('Device %s was plugged in', device.id);
+                    Casque.getCasqueByDeviceId(device.id);
+
+                    client.push(device.id, 'README.md', '/data/local/tmp/foo.md')
+                        .then(function(transfer) {
+                            return new Promise(function(resolve, reject) {
+                                transfer.on('progress', function(stats) {
+                                    console.log('[%s] Pushed %d bytes so far',
+                                        device.id,
+                                        stats.bytesTransferred)
+                                });
+                                transfer.on('end', function() {
+                                    console.log('[%s] Push complete', device.id);
+                                    resolve()
+                                });
+                                transfer.on('error', reject)
+                            })
+                        })
+
+                });
+                tracker.on('remove', function(device) {
+                    console.log('Device %s was unplugged', device.id)
+                });
+                tracker.on('end', function() {
+                    console.log('Tracking stopped')
+                });
+            })
+            .catch(function(err) {
+                console.error('Something went wrong:', err.stack)
+            });
+
+    }
+
+    static saveConfig(){
+
+        console.error(Casque.data);
+        fs.writeFileSync( Casque.configPath , JSON.stringify(Casque.data) );
+    }
+
+
 
     refreshDisplay(){
         this.displayBattery();
@@ -153,7 +290,7 @@ class Casque {
 
         if (hours   < 10) {hours   = "0"+hours;}
         if (minutes < 10) {minutes = "0"+minutes;}
-        if (seconds < 10) {seconds = "0"+seconds;};
+        if (seconds < 10) {seconds = "0"+seconds;}
         let r=[];
         if(h){
             r.push(hours);
@@ -245,13 +382,6 @@ class Casque {
 
 
 
-
-
-
-
-
-
-
 }
 
 /**
@@ -260,4 +390,21 @@ class Casque {
  */
 Casque.all=[];
 
+
+
+/**
+ * liste des casques indexé par device ID
+ *
+ */
+Casque.allByDeviceId= {};
+
+
+Casque.configPath = window.machine.appStoragePath+"/config.json";
+
+
+
+
+
+
 module.exports=Casque;
+

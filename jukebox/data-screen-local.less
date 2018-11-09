@@ -19,6 +19,57 @@
   #casques{
     width: var(--casques-w);
     left: 1px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    >*{
+      flex-grow: 0;
+      &[data-casque='1']{
+        order:1;
+      }
+      &[data-casque='2']{
+        order:2;
+      }
+      &[data-casque='3']{
+        order:3;
+      }
+      &[data-casque='4']{
+        order:4;
+      }
+      &[data-casque='5']{
+        order:5;
+      }
+      &[data-casque='6']{
+        order:6;
+      }
+      &[data-casque='7']{
+        order:7;
+      }
+      [data-casque='8']{
+        order:8;
+      }
+      &[data-casque='9']{
+        order:9;
+      }
+      &[data-casque='10']{
+        order:10;
+      }
+      &[data-casque='11']{
+        order:11;
+      }
+      &[data-casque='12']{
+        order:12;
+      }
+      &[data-casque='13']{
+        order:13;
+      }
+      &[data-casque='14']{
+        order:14;
+      }
+      &[data-casque='15']{
+        order:15;
+      }
+    }
   }
 
   #contenus{
