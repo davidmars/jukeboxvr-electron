@@ -39,6 +39,11 @@ class Machine extends EventEmitter{
         if (!fs.existsSync(me.appStoragePath)) {
             FileSystemUtils.ensureDirectoryExistence(me.appStoragePath+"/test.txt");
         }
+        /**
+         * Chemin vers le fichier de config des casques
+         * @type {string}
+         */
+        this.jsonCasquesConfigPath=this.appStoragePath+"/casques-config.json"
     }
 }
 module.exports = Machine;
