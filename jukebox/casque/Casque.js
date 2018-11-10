@@ -5,6 +5,8 @@ class Casque {
 
     constructor(identifier, deviceId) {
 
+        let me=this;
+
         Casque.all.push(this);
         Casque.allByDeviceId[deviceId] = this;
         Casque.allByIdentifier[identifier] = this;
@@ -50,17 +52,18 @@ class Casque {
          */
         this.adbConnected=false;
         /**
-         * Si true c'est que le socket semble fonctionner
-         * @type {boolean}
+         * Si > 0 c'est que le socket semble fonctionner
+         * @type {int}
          */
-        this.socketConnected=false;
+        this.socketConnected=0;
 
-        /*
+
         setInterval(function () {
-            me._fakeData();
+            //me._fakeData();
+            me.socketConnected--;
             me.refreshDisplay();
-        }, 100);
-        */
+        }, 1000);
+
 
         this.$el = null;
         this.$battery = null;
@@ -146,7 +149,7 @@ class Casque {
         }else{
             this.$adb.removeClass("active");
         }
-        if(this.socketConnected){
+        if(this.socketConnected>0){
             this.$socket.addClass("active");
         }else{
             this.$socket.removeClass("active");
@@ -433,6 +436,7 @@ class Casque {
                 console.log("msg json",json);
                 let casque = Casque.getCasqueByIdentifier(identifier);
                 if(casque){
+                    casque.socketConnected=1000;
                     if(json.batterylevel){
                         casque.batteryLevel=json.batterylevel;
                     }
