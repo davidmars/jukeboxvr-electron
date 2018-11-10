@@ -84,6 +84,22 @@
       margin: 0;
     }
 
+    .network{
+      font-size: 9px;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: row;
+      >*{
+        margin-right: 5px;
+        padding: 0 3px;
+        color: #ddd;
+        &.active{
+          background-color: #090;
+          color: #fff;
+        }
+      }
+    }
+
     .play-texts{
       //outline: 1px solid red;
       display: flex;
