@@ -1,5 +1,11 @@
 const FileSystemUtils = require("../../utils/FileSystemUtils");
 const fs = require("fs");
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http , { wsEngine: 'ws' , pingInterval:1000});
+
+let switchplay = true;
+
 
 class Casque {
 
@@ -16,6 +22,24 @@ class Casque {
          * @type {string}
          */
         this.identifier = identifier;
+        /**
+         * Identifiant adb
+         * @type {string}
+         */
+        this.deviceId = deviceId;
+
+        /**
+         * Liste des fichiers présents sur le casque
+         * @type {String[]}
+         * @private
+         */
+        this._files = [];
+
+        /**
+         * Identifiant socket du casque
+         * @type {int}
+         */
+        this.sockID = 0;
 
 
         /**
@@ -58,11 +82,26 @@ class Casque {
         this.socketConnected=0;
 
 
+        /**
+         * true si tous les fichiers sont copiés sur le casque
+         * @type {boolean}
+         */
+        this.isSyncro=false;
+
+
+        /**
+         * true si un ou des fichiers sont en cours de copie
+         * @type {boolean}
+         */
+        this.isSynchroBusy=false;
+
+
         setInterval(function () {
             //me._fakeData();
+            //me.isSyncro=Math.random()>0.5;
             me.socketConnected--;
             me.refreshDisplay();
-        }, 1000);
+        }, 100);
 
 
         this.$el = null;
@@ -75,9 +114,155 @@ class Casque {
         this.$contenuImg = null;
         this.$adb=null;
         this.$socket=null;
+        this.$synchroBusy=null;
+        this.$synchro=null;
         //ajoute le casque dans le HTML
         window.ui.addCasque(this);
+
+        /**
+         *
+         * @type {mixed}
+         */
+        this.adbClient = null;
     }
+
+    /**
+     * Ajoute le contenu sur le casque
+     * @param {ContenuModel} contenu
+     * @param {function} onComplete appelé quand c'est ok
+     */
+    addContenu(contenu,onComplete){
+        alert("add contenu !!");
+        let me=this;
+        let files=[];
+        files.push(contenu.localFileAbsolute);
+        let toCopy=files.length;
+        /**
+         * Teste si tous les fichiers sont copiés
+         */
+        let testFinished=function(){
+            if(toCopy<=0){
+                onComplete();
+            }
+        };
+
+        for(let file of files){
+            if(this._fileExists(file)){
+               toCopy--;
+                testFinished();
+            }else{
+                this._adbPushFile(
+                    file
+                    ,function(){
+                        console.log("copie en cours "+file+" sur casque "+me.identifier);
+                    },
+                    function(){
+                        toCopy--;
+                        console.log("copie terminée de "+file+" sur casque "+me.identifier);
+                        testFinished();
+                    }
+                );
+            }
+
+        }
+
+
+
+
+    }
+
+    /**
+     * Teste si un fichier existez
+     * @param {string} file
+     * @return {bool}
+     * @private
+     */
+    _fileExists(file){
+        return this._files.indexOf(file)> -1;
+    }
+
+
+    /**
+     *
+     * @private
+     */
+    _adbPushFile(filePath, onProgress, onComplete){
+
+        let me=this;
+
+        if(!this._fileExists(filePath)){
+            console.log("copie "+filePath + "sur " + me.deviceId);
+            console.log("File exist pas !");
+            me.isSynchroBusy=true;
+            //TODO utiliser cette méthode pour la copie de fichiers
+
+            Casque.adbClient.push(me.deviceId, window.machine.appStoragePath+"/"+filePath,'/sdcard/Download/'+filePath)
+                .then(function (transfer) {
+                    return new Promise(function (resolve, reject) {
+                        transfer.on('progress', function (stats) {
+                            console.log('[%s] Pushed %d bytes so far',
+                                me.deviceId,
+                                stats.bytesTransferred)
+                        });
+                        transfer.on('end', function () {
+                            console.log('[%s] Push complete', me.deviceId);
+                            me.isSynchroBusy=false;
+                            resolve()
+                        });
+                        transfer.on('error', reject)
+                    })
+                })
+                .catch(function(error){
+                    console.error("erreur transfer = ",error);
+                    me.isSynchroBusy=false;
+                });
+        }else{
+            me.isSynchroBusy=false;
+        }
+
+
+    }
+
+    /**
+     *
+     * @private
+     */
+    _adbDelete(filePath , onComplete){
+
+        let me=this;
+
+        if(this._fileExists(filePath)){
+            console.log("remove "+filePath);
+
+            Casque.adbClient.shell(me.deviceId, 'rm -f '+'/sdcard/Download/'+filePath, function(err, output){
+
+                console.log("delete outpout" , output );
+                if ( err === null )
+                {
+                    console.log("Delete Successeful " , filePath);
+                    me.isSynchroBusy=false;
+                }
+                else
+                {
+                    console.log("delete = " ,e );
+                }
+
+
+            });
+            //this.isCop
+            //do it
+        }
+    }
+
+    /**
+     *
+     * @private
+     */
+    _adbGetFiles(Path){
+
+    }
+
+
 
     /**
      *
@@ -125,6 +310,13 @@ class Casque {
      */
     setContenu(contenu) {
         this.contenu = contenu;
+        //teste si le fichier est sur le casque
+        if(!this._fileExists(contenu.localFile)){
+            alert("pas sur le casque "+this.identifier);
+            return;
+        }
+
+
         if (this.contenu) {
             this.playTime = 0;
             this.totalTime = 60;
@@ -153,6 +345,16 @@ class Casque {
             this.$socket.addClass("active");
         }else{
             this.$socket.removeClass("active");
+        }
+        if(this.isSynchroBusy){
+            this.$synchroBusy.addClass("active");
+        }else{
+            this.$synchroBusy.removeClass("active");
+        }
+        if(this.isSyncro){
+            this.$synchro.addClass("active");
+        }else{
+            this.$synchro.removeClass("active");
         }
     }
 
@@ -208,6 +410,8 @@ class Casque {
         this.$contenuImg = me.$el.find(".img");
         this.$adb = me.$el.find(".adb");
         this.$socket = me.$el.find(".socket");
+        this.$synchro = me.$el.find(".synchro");
+        this.$synchroBusy = me.$el.find(".synchroBusy");
         window.ui.setImgSrc("jukebox/casque/placeholder.jpg", this.$contenuImg);
         me.$el.on("click", function () {
             me.toggleSelected()
@@ -339,7 +543,12 @@ class Casque {
         //initilise les écouteurs ADB
         Casque._initADB();
         //initialise les échanges socket
-        Casque._initSocket();
+        setTimeout(function(){
+
+            Casque._initSocket();
+
+        }, 100);
+
     }
 
     /**
@@ -347,31 +556,18 @@ class Casque {
      */
     static _initADB() {
         let adb = require('adbkit');
-        let client = adb.createClient();
-        client.trackDevices()
+        let Promise = require('bluebird');
+        Casque.adbClient = adb.createClient();
+        Casque.adbClient.trackDevices()
+
             .then(function (tracker) {
                 tracker.on('add', function (device) {
+
                     console.log('Device %s was plugged in', device.id);
+
                     let casque=Casque.getCasqueByDeviceId(device.id);
                     casque.adbConnected=true;
                     casque.refreshDisplay();
-
-                    //TODO utiliser cette méthode pour la copie de fichiers
-                    client.push(device.id, 'README.md', '/data/local/tmp/foo.md')
-                        .then(function (transfer) {
-                            return new Promise(function (resolve, reject) {
-                                transfer.on('progress', function (stats) {
-                                    console.log('[%s] Pushed %d bytes so far',
-                                        device.id,
-                                        stats.bytesTransferred)
-                                });
-                                transfer.on('end', function () {
-                                    console.log('[%s] Push complete', device.id);
-                                    resolve()
-                                });
-                                transfer.on('error', reject)
-                            })
-                        })
 
                 });
                 tracker.on('remove', function (device) {
@@ -395,16 +591,21 @@ class Casque {
      * @private
      */
     static _initSocket(){
-        const app = require('express')();
-        const http = require('http').Server(app);
-        const io = require('socket.io')(http , { wsEngine: 'ws' , pingInterval:1500 });
+
+
+
+
         http.listen(3000, function(){
             console.log('listening on *:3000');
         });
+
         io.on('connection', function(socket){
             let identifier = socket.handshake.address.toString().substring(socket.handshake.address.toString().length-2 , socket.handshake.address.toString().length);
             console.log("device connected " + identifier);
+            let casque = Casque.getCasqueByIdentifier(identifier);
+            casque.sockID = socket.id;
             io.to(socket.id).emit('setid', identifier );
+
             //Connection here
             function ServerMessage(){
                 this.id = 0;
@@ -419,31 +620,110 @@ class Casque {
                 this.msg = "default";
             }
 
-            function send( id , msg){
-                var tmp = new ServerMessage();
-                tmp.id = id;
-                tmp.msg = msg;
-                io.emit('chat', tmp);
-            }
+
             setTimeout(function(){
-                send(  identifier , "Connected to server !");
-            }, 100);
+
+                var tmp = new ServerMessage();
+                tmp.id = identifier;
+                tmp.msg = "Connected to server !";
+                io.emit( 'chat', tmp )
+
+            }, 4000);
+
+
+
 
             socket.on('chat', function(msg){ // exemple receive
-                io.emit('chat', msg); // exemple emit
-                console.log("msg",msg);
+
+                //io.emit('chat', msg); // exemple emit
                 var json = JSON.parse(msg);
-                console.log("msg json",json);
-                let casque = Casque.getCasqueByIdentifier(identifier);
+                console.log("msg json from ", json.id," = ",json);
+                //let casque = Casque.getCasqueByIdentifier(json.id);
                 if(casque){
                     casque.socketConnected=1000;
                     if(json.batterylevel){
                         casque.batteryLevel=json.batterylevel;
                     }
+                    if ( json.currentPlayTime > -1 ){
+                        //console.log("json.currentPlayTime = " + json.currentPlayTime);
+                        casque.playTime = json.currentPlayTime;
+                    }
+
+                    if ( json.totalPlaytime > 0 ){
+                        //console.log("json.totalPlaytime = " + json.totalPlaytime);
+                        casque.totalTime = json.totalPlaytime;
+                    }
+
+                    if ( json.fileList && json.fileList.length)
+                    {
+                        casque._files =json.fileList;
+                        for ( let i = 0 ; i<casque._files.length ;  i++)
+                        {
+                            casque._files[i] =casque._files[i].split("\\").join("/");
+
+                        }
+                    }
+
+                    casque._syncContenus();
+
+                    //console.error(casque._files);
                     casque.refreshDisplay();
                 }
+
+
+                if ( json.id === 40 && json.msg !== "test" && json.msg !== "ApplicationQuit") // testing start and stop;
+                {
+                    console.log("40 send message");
+                    var tmp = new ServerMessage();
+                    //tmp.id = -1;
+
+                    if ( switchplay)
+                    {
+                        tmp.startsession = true;
+                        tmp.msg = "Starting session";
+                    }
+                    else
+                    {
+                        tmp.stopsession = true;
+                        tmp.NBVideo = Math.floor(Math.random() * 3);
+                        tmp.msg = "Stoppting session";
+                    }
+                    switchplay = !switchplay;
+
+
+                    Casque.all.forEach(function(element)
+                    {
+                     if ( element.isSelected() )
+                     {
+                         console.log("Send message to " , element);
+                         tmp.id = element.identifier;
+                         io.to(element.sockID).emit('chat', tmp);
+                     }
+
+                    });
+
+                }
+
+
+
+
+
+
+
+
+
             });
+
+            socket.on('disconnect', function(){
+                let casque = Casque.getCasqueByIdentifier(identifier);
+                casque.socketConnected = 0;
+                console.log('user disconnected '+ identifier);
+            });
+
+
         });
+
+
     }
 
     /**
@@ -452,7 +732,7 @@ class Casque {
      */
     static _saveConfig() {
         console.error("Enregistre le json de config des casques",Casque.configJson);
-        fs.writeFileSync(window.machine.jsonCasquesConfigPath, JSON.stringify(Casque.configJson));
+        fs.writeFileSync(window.machine.jsonCasquesConfigPath, JSON.stringify(Casque.configJson,undefined, 2));
     }
 
     /**
@@ -491,6 +771,94 @@ class Casque {
         Casque.unselectAll();
     }
 
+    /**
+     * Copie le contenu sur tous les casques
+     * @param {ContenuModel} contenu
+     */
+    static pushContenu(contenu){
+        if(!Casque.configJson.contenusCopied){
+            Casque.configJson.contenusCopied={}
+        }
+        Casque.configJson.contenusCopied[contenu.localFile]="1";
+        Casque._saveConfig();
+    }
+    /**
+     * Supprime le contenu sur tous les casques
+     * @param {ContenuModel} contenu
+     */
+    static removeContenu(contenu){
+        if(!Casque.configJson.contenusCopied){
+            Casque.configJson.contenusCopied={}
+        }
+        if(Casque.configJson.contenusCopied[contenu.localFile]){
+            delete Casque.configJson.contenusCopied[contenu.localFile];
+        }
+        Casque._saveConfig();
+    }
+
+
+    /**
+     * Synchronise les contenus qui doivent l'être sur le casques
+     */
+    _syncContenus(){
+        let casque=this;
+
+
+        if ( this.isSynchroBusy )
+        {
+            return false;
+        }
+
+        console.log("Synchro contenu ?");
+
+        //ajoute les fichiers
+        for (var file in Casque.configJson.contenusCopied) {
+            if (Casque.configJson.contenusCopied.hasOwnProperty(file)) {
+                if(!this._fileExists(file)){
+                    this.isSyncro=false;
+                    if(this.adbConnected){
+                        this.isSynchroBusy= true;
+                        casque._adbPushFile(file);
+                        return false;
+                    }
+                }
+            }
+        }
+
+
+        //efface les fichiers innutiles
+        for (var casqueFile of casque._files) {
+                if (!Casque.configJson.contenusCopied[casqueFile]) {
+                    if(this._fileExists(file)) {
+                        this.isSyncro = false;
+                        if(this.adbConnected) {
+                            this.isSynchroBusy = true;
+                            casque._adbDelete(casqueFile);
+                            return false;
+                        }
+                    }
+                }
+
+        }
+
+        this.isSyncro = true;
+        this.refreshDisplay();
+        return true;
+    }
+
+
+
+    /**
+     * Dit si un contenu est copié sur tous les casques ou pas
+     * (se base sur le json pour dire ça)
+     * @param {ContenuModel} contenu
+     * @returns {boolean}
+     */
+    static isContenuCopied(contenu){
+        return Casque.configJson.contenusCopied[contenu.localFile]? true : false;
+    }
+
+
 }
 
 /**
@@ -498,7 +866,8 @@ class Casque {
  * @type {{casques: {}}}
  */
 Casque.configJson = {
-    casques: {}
+    casques: {},
+    contenusCopied:{}
 };
 /**
  * Tous les casques référencés

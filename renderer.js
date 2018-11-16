@@ -130,6 +130,7 @@ machine.on(EVENT_READY,function(){
 
         }
         ui.$navSync.removeClass("syncing");
+
     });
 
     sync.on(EVENT_OFFLINE,function(){
