@@ -343,8 +343,10 @@ class Casque {
         }
         if(this.socketConnected>0){
             this.$socket.addClass("active");
+            this.$display().removeClass("disabled")
         }else{
             this.$socket.removeClass("active");
+            this.$display().addClass("disabled")
         }
         if(this.isSynchroBusy){
             this.$synchroBusy.addClass("active");
