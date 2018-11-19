@@ -328,6 +328,27 @@ class Casque {
         }
         //TODO VICTOR lancer une commande Socket pour afficher le contenu dans le casque
 
+        function ServerMessage(){
+            this.id = 0;
+            this.battery = false;
+            this.changelanguage = false;
+            this.language = "";
+            this.startsession = false;
+            this.stopsession = false;
+            this.calibrate = false;
+            this.opencalibration = false;
+            this.videoPath ="";
+            this.msg = "default";
+        }
+
+        var tmp = new ServerMessage();
+        tmp.id = this.identifier;
+        tmp.videoPath = contenu.localFile;
+        tmp.startsession = true;
+        console.log(contenu.localFile);
+
+        io.to(this.sockID).emit('chat' , tmp );
+
     }
 
     /**
@@ -595,11 +616,11 @@ class Casque {
     static _initSocket(){
 
 
-
-
         http.listen(3000, function(){
             console.log('listening on *:3000');
         });
+
+
 
         io.on('connection', function(socket){
             let identifier = socket.handshake.address.toString().substring(socket.handshake.address.toString().length-2 , socket.handshake.address.toString().length);
@@ -618,7 +639,7 @@ class Casque {
                 this.stopsession = false;
                 this.calibrate = false;
                 this.opencalibration = false;
-                this.NBVideo = -1;
+                this.videoPath = "";
                 this.msg = "default";
             }
 
@@ -630,7 +651,7 @@ class Casque {
                 tmp.msg = "Connected to server !";
                 io.emit( 'chat', tmp )
 
-            }, 4000);
+            }, 500);
 
 
 
@@ -687,7 +708,7 @@ class Casque {
                     else
                     {
                         tmp.stopsession = true;
-                        tmp.NBVideo = Math.floor(Math.random() * 3);
+                        tmp.videoPath = Math.floor(Math.random() * 3);
                         tmp.msg = "Stoppting session";
                     }
                     switchplay = !switchplay;
@@ -705,13 +726,6 @@ class Casque {
                     });
 
                 }
-
-
-
-
-
-
-
 
 
             });
