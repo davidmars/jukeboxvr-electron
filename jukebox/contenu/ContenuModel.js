@@ -13,6 +13,7 @@ class ContenuModel {
         this.localFile=data.localFile;
         this.serverThumb=data.serverThumb;
         this.localThumb=data.localThumb;
+        this.isCopied=false;
         /**
          * Url absolue du fichier à jouer dans le système de fichiers
          * @type {string}
@@ -23,6 +24,12 @@ class ContenuModel {
          * @type {string}
          */
         this.localThumbAbsolute=machine.appStoragePath+"/"+data.localThumb;
+        /**
+         *
+         * @type {null}
+         */
+        this.$copied=null;
+
     }
 
     /**
@@ -37,6 +44,21 @@ class ContenuModel {
         $template.on("click",function(e){
            Casque.setContenuSelecteds(me);
         });
+        this.$copied=$template.find("[casque-copied]");
+        if(this.isCopied){
+            this.$copied.addClass("copied");
+        }else{
+            this.$copied.removeClass("copied");
+        }
+        this.$copied.on("click",function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            //$(this).toggleClass("copied");
+            me.setIsCopied(!me.isCopied);
+        });
+
+        me.setIsCopied(Casque.isContenuCopied(me));
+
 
 
 
@@ -44,6 +66,20 @@ class ContenuModel {
 
 
 
+    }
+
+    setIsCopied(copied=false){
+        this.isCopied=copied;
+        if(this.isCopied){
+            this.$copied.addClass("copied");
+        }else{
+            this.$copied.removeClass("copied");
+        }
+        if(this.isCopied){
+            Casque.pushContenu(this);
+        }else{
+            Casque.removeContenu(this);
+        }
     }
 
 }
