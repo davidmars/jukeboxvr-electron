@@ -65,7 +65,7 @@ function createWindow () {
         log_message = log_message + ' - Downloaded ' + Math.floor(progressObj.percent) + '%';
         log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
         logg(log_message);
-        mainWindow.webContents.executeJavaScript('ui.logLine("mise à jour du programme en cours '+progressObj.percent+'%")');
+        mainWindow.webContents.executeJavaScript('ui.logLine("mise à jour du programme en cours '+Math.floor(progressObj.percent)+'%")');
     });
     autoUpdater.on('update-downloaded', (info) => {
         logg('Update downloaded');
