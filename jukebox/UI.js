@@ -3,6 +3,7 @@ const win = electron.remote.getCurrentWindow();
 const fs = require("fs");
 const path = require('path');
 const ContenuModel = require("./contenu/ContenuModel");
+const remote = electron.remote;
 /**
  * L'interface utilisateur
  * @type {Electron}
@@ -15,6 +16,11 @@ class UI{
         //injecte la nav
         let $nav=this.$template("jukebox/nav.html");
         $body.prepend($nav);
+
+
+        $nav.on("click",".js-close-app",function(){
+           remote.getCurrentWindow().close();
+        });
 
         //charge le catalogue
         this.chargeCatalogueOnline();
