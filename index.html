@@ -23,6 +23,18 @@
         <div id="contenus">
             <!-- contenus -->
         </div>
+        <div id="actions-menu" class="shadow rounded-top">
+            <button data-action="pause">
+                <svg class="adb">
+                    <use xlink:href="#jukebox-pause"></use>
+                </svg>
+            </button>
+            <button data-action="play">
+                <svg class="adb">
+                    <use xlink:href="#jukebox-play"></use>
+                </svg>
+            </button>
+        </div>
     </div>
 
 
@@ -32,10 +44,8 @@
 
 
     <script>
-      // You can also require other files to run in this process
       require('./renderer.js');
       require('./libs/bootstrap-4.1.3-dist/js/bootstrap.bundle.min');
-
     </script>
   </body>
 </html>
