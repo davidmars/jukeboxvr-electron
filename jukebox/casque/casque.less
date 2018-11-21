@@ -1,10 +1,10 @@
 [data-casque]{
 
+  transition: all 0.2s;
   &.disabled{
     opacity: 0.5;
     pointer-events: none;
   }
-
 
   padding: 15px;
   margin: 1px;
@@ -81,27 +81,44 @@
     flex-grow: 1;
     position: relative;
     .contenu-name{
+      overflow: hidden;
+      display: inline;
+      text-overflow: ellipsis;
+      width: 100%;
+      white-space: nowrap;
       font-weight: 400;
       font-size: 12px;
-      word-wrap: break-word;
       margin: 0;
     }
 
+
     .network{
-      font-size: 9px;
-      text-transform: uppercase;
       display: flex;
       flex-direction: row;
+      justify-content: space-between;
+      svg{
+        width: 24px;
+        height: 24px;
+      }
+      .adb,.socket,.synchro,.synchroBusy{
+
+      }
+      .synchroBusy{
+        &.active{
+          animation-name: rotate;
+          animation-duration: 1s;
+          animation-iteration-count: infinite;
+        }
+      }
       >*{
+        visibility: hidden;
         margin-right: 5px;
         padding: 0 3px;
-        color: #ddd;
+        color: #bbb;
+        transition: all 1s;
         &.active{
-          background-color: #090;
-          color: #fff;
-          &.synchroBusy{
-            background-color: #900;
-          }
+          visibility: visible;
+          color: #090;
         }
       }
     }
@@ -126,4 +143,13 @@
 
 
 
+}
+
+@keyframes rotate {
+  from{
+    transform: rotate(360deg);
+  }
+  to{
+    transform: rotate(0deg);
+  }
 }

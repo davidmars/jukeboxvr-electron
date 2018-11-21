@@ -1,7 +1,7 @@
+const Casque = require("./casque/Casque");
 const electron = require('electron');
 const win = electron.remote.getCurrentWindow();
 const fs = require("fs");
-const path = require('path');
 const ContenuModel = require("./contenu/ContenuModel");
 const remote = electron.remote;
 /**
@@ -16,8 +16,6 @@ class UI{
         //injecte la nav
         let $nav=this.$template("jukebox/nav.html");
         $body.prepend($nav);
-
-
         $nav.on("click",".js-close-app",function(){
            remote.getCurrentWindow().close();
         });
@@ -42,14 +40,39 @@ class UI{
         this.$logs=$("#logs");
         this.$logLine=$("#logline");
 
-
-
         this.$navOnline=$('[data-nav-screen="online"]');
         this.$navSync=$('.js-sync');
+
+        /**
+         * Le menu qui contient play/pause all
+         * @type {*|jQuery|HTMLElement}
+         * @private
+         */
+        this._actionsMenu=$("#actions-menu");
+        let $btnPlayAll=this._actionsMenu.find("[data-action='play']");
+        let $btnPauseAll=this._actionsMenu.find("[data-action='pause']");
+        $btnPauseAll.on("click",function(){
+            Casque.pauseAllSelected();
+        });
+        $btnPlayAll.on("click",function(){
+            Casque.pauseAllSelected();
+        });
     }
 
     /**
-     *
+     * Active ou désactive le menu d'action
+     * @param {boolean} active si false désactiveera
+     */
+    activeActionMenu(active=true){
+        if(active){
+            this._actionsMenu.addClass("active");
+        }else{
+            this._actionsMenu.removeClass("active");
+        }
+    }
+
+    /**
+     * Met à jour les contenus
      * @param {array} contenus
      */
     updateContenus(contenus){
@@ -78,7 +101,7 @@ class UI{
      * @param {Casque} casque
      */
     addCasque(casque){
-        this.$casques.append(casque.$display());
+        this.$casques.append(casque.$el);
     }
 
     setOnline(online){

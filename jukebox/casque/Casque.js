@@ -96,12 +96,7 @@ class Casque {
         this.isSynchroBusy=false;
 
 
-        setInterval(function () {
-            //me._fakeData();
-            //me.isSyncro=Math.random()>0.5;
-            me.socketConnected--;
-            me.refreshDisplay();
-        }, 100);
+
 
 
         this.$el = null;
@@ -117,13 +112,46 @@ class Casque {
         this.$synchroBusy=null;
         this.$synchro=null;
         //ajoute le casque dans le HTML
+
+        //référence les objets DOM
+        me.$el = window.ui.$template("jukebox/casque/casque.html");
+        me.$el.attr("data-casque", me.identifier);
+        me.$el.find(".identifier").text(me.identifier);
+        this.$battery = me.$el.find(".battery");
+        this.$batteryText = me.$el.find(".battery .text");
+        this.$playTotal = me.$el.find(".play-total-time");
+        this.$playCurrent = me.$el.find(".play-current-time");
+        this.$playProgress = me.$el.find(".play-progress");
+        this.$contenuName = me.$el.find(".contenu-name");
+        this.$contenuImg = me.$el.find(".img");
+        this.$adb = me.$el.find(".adb");
+        this.$socket = me.$el.find(".socket");
+        this.$synchro = me.$el.find(".synchro");
+        this.$synchroBusy = me.$el.find(".synchroBusy");
+        window.ui.setImgSrc("jukebox/casque/placeholder.jpg", this.$contenuImg);
+        me.$el.on("click", function () {
+            me.toggleSelected()
+        });
+
         window.ui.addCasque(this);
+        setInterval(function () {
+            me.socketConnected--;
+            me.refreshDisplay();
+        }, 100);
 
         /**
          *
          * @type {mixed}
          */
         this.adbClient = null;
+
+        if(Casque.isTestingMode){
+            me.adbConnected=true;
+            me.socketConnected=2000;
+            me.isSyncro=true;
+        }
+
+
     }
 
     /**
@@ -172,7 +200,7 @@ class Casque {
     }
 
     /**
-     * Teste si un fichier existez
+     * Teste si un fichier existe
      * @param {string} file
      * @return {bool}
      * @private
@@ -264,12 +292,30 @@ class Casque {
 
 
 
+    static _testFake(){
+        setInterval(function(){
+            for (let idx in Casque.all) {
+                Casque.all[idx]._fakeData();
+            }
+        },1000);
+    }
     /**
      *
      * Génère de fausses données pour tester
      * @private
      */
     _fakeData() {
+        if(Math.random()>0.99){
+            this.adbConnected=!this.adbConnected;
+        }
+        if(Math.random()>0.99){
+            this.socketConnected=2000;
+        }
+        if(Math.random()>0.99){
+            this.isSyncro=!this.isSyncro;
+        }
+        this.isSynchroBusy=!this.isSyncro;
+
         if (this.isCharging) {
             this.batteryLevel += Math.random() * 0.3;
         } else {
@@ -311,10 +357,13 @@ class Casque {
     setContenu(contenu) {
         this.contenu = contenu;
         //teste si le fichier est sur le casque
-        if(!this._fileExists(contenu.localFile)){
-            alert("pas sur le casque "+this.identifier);
-            return;
+        if(!Casque.isTestingMode){
+            if(!this._fileExists(contenu.localFile)){
+                alert("pas sur le casque "+this.identifier);
+                return;
+            }
         }
+
 
 
         if (this.contenu) {
@@ -345,8 +394,6 @@ class Casque {
         tmp.id = this.identifier;
         tmp.videoPath = contenu.localFile;
         tmp.startsession = true;
-        console.log(contenu.localFile);
-
         io.to(this.sockID).emit('chat' , tmp );
 
     }
@@ -364,10 +411,10 @@ class Casque {
         }
         if(this.socketConnected>0){
             this.$socket.addClass("active");
-            this.$display().removeClass("disabled")
+            this.$el.removeClass("disabled")
         }else{
             this.$socket.removeClass("active");
-            this.$display().addClass("disabled")
+            this.$el.addClass("disabled")
         }
         if(this.isSynchroBusy){
             this.$synchroBusy.addClass("active");
@@ -411,36 +458,10 @@ class Casque {
      */
     toggleSelected() {
         this.$el.toggleClass("selected");
+        Casque._onSelectCasques();
     }
 
-    /**
-     * Renvoie l'élément DOM de ce casque
-     * @return {*|jQuery|HTMLElement}
-     */
-    $display() {
-        let me = this;
-        if (!me.$el) {
-            me.$el = window.ui.$template("jukebox/casque/casque.html");
-            me.$el.attr("data-casque", me.identifier);
-            me.$el.find(".identifier").text(me.identifier);
-        }
-        this.$battery = me.$el.find(".battery");
-        this.$batteryText = me.$el.find(".battery .text");
-        this.$playTotal = me.$el.find(".play-total-time");
-        this.$playCurrent = me.$el.find(".play-current-time");
-        this.$playProgress = me.$el.find(".play-progress");
-        this.$contenuName = me.$el.find(".contenu-name");
-        this.$contenuImg = me.$el.find(".img");
-        this.$adb = me.$el.find(".adb");
-        this.$socket = me.$el.find(".socket");
-        this.$synchro = me.$el.find(".synchro");
-        this.$synchroBusy = me.$el.find(".synchroBusy");
-        window.ui.setImgSrc("jukebox/casque/placeholder.jpg", this.$contenuImg);
-        me.$el.on("click", function () {
-            me.toggleSelected()
-        });
-        return me.$el;
-    }
+
 
     /**
      * Convertit des secondes en heures minutes secondes
@@ -747,7 +768,7 @@ class Casque {
      * @private
      */
     static _saveConfig() {
-        console.error("Enregistre le json de config des casques",Casque.configJson);
+        console.log("Enregistre le json de config des casques",Casque.configJson);
         fs.writeFileSync(window.machine.jsonCasquesConfigPath, JSON.stringify(Casque.configJson,undefined, 2));
     }
 
@@ -772,6 +793,18 @@ class Casque {
         for (let c of Casque.all) {
             c.$el.removeClass("selected");
         }
+        Casque._onSelectCasques();
+    }
+
+    /**
+     * Appellé quand un casque est sélectionné ou déselectioné, fait apparaitre ou disparaitre le menu d'actions play / pause
+     * @private
+     */
+    static _onSelectCasques(){
+        let active=Casque.selecteds().length > 0;
+        window.ui.activeActionMenu(active);
+
+
     }
 
 
@@ -854,7 +887,6 @@ class Casque {
                         }
                     }
                 }
-
         }
 
         this.isSyncro = true;
@@ -872,6 +904,27 @@ class Casque {
      */
     static isContenuCopied(contenu){
         return Casque.configJson.contenusCopied[contenu.localFile]? true : false;
+    }
+
+    /**
+     * Lance la commande de lecture sur tous les casques selectionnés
+     */
+    static playAllSelected(){
+        let numeros=[];
+        for(let i in Casque.selecteds() ){
+            numeros.push(Casque.selecteds()[i].identifier);
+        }
+        alert("lecture sur casques "+numeros.join(" et "));
+    }
+    /**
+     * Lance la commande de pause sur tous les casques selectionnés
+     */
+    static pauseAllSelected(){
+        let numeros=[];
+        for(let i in Casque.selecteds() ){
+            numeros.push(Casque.selecteds()[i].identifier);
+        }
+        alert("pause sur casques "+numeros.join(" et "));
     }
 
 
@@ -902,5 +955,21 @@ Casque.allByDeviceId = {};
 Casque.allByIdentifier = {};
 
 
+//tests only
+Casque.isTestingMode=false;
+if(Casque.isTestingMode){
+    setTimeout(function () {
+        for(let i=1; i<6;i++){
+            let casque=new Casque(i,Math.random());
+            //window.ui.addCasque(this);
+        }
+        Casque._testFake();
+    },3000);
+}
+
 module.exports = Casque;
+
+
+
+
 
