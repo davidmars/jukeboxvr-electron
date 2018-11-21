@@ -7,6 +7,18 @@
     margin: 0;
   }
 
+  .card-body{
+    padding: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    .card-title{
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
   [casque-copied]{
     position: absolute;
     top: 5px;
