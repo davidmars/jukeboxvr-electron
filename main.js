@@ -7,27 +7,28 @@ const electron = require('electron');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+const isDevelopment = process.mainModule.filename.indexOf('app.asar') === -1;
+
 function createWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1024, height: 600});
+    // Create the browser window.
+    mainWindow = new BrowserWindow({width: 1024, height: 600});
+    // and load the index.html of the app.
+    mainWindow.loadFile('index.html');
 
-    //déplace la fenetre sur 2 eme écran
-    if(electron.screen.getAllDisplays().length>1){
-        mainWindow.setPosition(electron.screen.getAllDisplays()[1].bounds.x,0);
+    if(isDevelopment){
+        //déplace la fenetre sur 2 eme écran
+        if(electron.screen.getAllDisplays().length>1){
+            mainWindow.setPosition(electron.screen.getAllDisplays()[1].bounds.x,0);
+        }
+        mainWindow.setAlwaysOnTop(true, "main-menu");
+        mainWindow.webContents.openDevTools();
+        mainWindow.setMenuBarVisibility(false);
+        //mainWindow.maximize();
+    }else{
+        mainWindow.setFullScreen(true);
     }
-    mainWindow.webContents.openDevTools();
-    mainWindow.maximize();
 
 
-    //mainWindow.setSize(1024,600);
-    mainWindow.setMenuBarVisibility(false);
-    //mainWindow.setAlwaysOnTop(true, "main-menu");
-
-    //mainWindow.setFullScreen(true);
-
-
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html');
 
 
   // Open the DevTools.
