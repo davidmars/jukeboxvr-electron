@@ -79,9 +79,21 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     --spacing:15px;
-
     >.contenu-card{
-      width:calc( 50% - var(--spacing) * 2);
+      --width:100%;
+      @media(min-width: @screen-md){
+        --width:50%;
+      }
+      @media(min-width: @screen-lg){
+        --width:33%;
+      }
+      @media(min-width: @screen-xl){
+        --width:25%;
+      }
+      @media(min-width: 1600px){
+        --width:20%;
+      }
+      width:calc( var(--width) - var(--spacing) * 2);
       margin: var(--spacing);
 
 
