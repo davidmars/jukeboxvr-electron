@@ -4,6 +4,7 @@
 
 const {app, BrowserWindow} = require('electron');
 const electron = require('electron');
+require("./jukebox/dragscroll");
 
 //ne pas afficher les message de sécurité relous
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS=true;
