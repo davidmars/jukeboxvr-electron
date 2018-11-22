@@ -76,6 +76,11 @@ let machine=window.machine=new Machine();
 
 machine.on(EVENT_READY,function(){
 
+    if(isDevelopment){
+        $body.addClass("dev");
+    }else{
+        $body.addClass("prod");
+    }
     const WebServer=require("./jukebox/WebServer");
     window.webServer = new WebServer();
 

@@ -24,7 +24,7 @@
     var EventListener = 'EventListener';
     var addEventListener = 'add'+EventListener;
     var removeEventListener = 'remove'+EventListener;
-    var newScrollX, newScrollY;
+    var newScrollX, newScrollY,firstY;
 
     var dragged = [];
     var reset = function(i, el) {
@@ -47,6 +47,7 @@
 
                         if (!el.hasAttribute('nochilddrag') || _document.elementFromPoint(e.pageX, e.pageY) == cont) {
                             pushed = 1;
+                            firstY=e.clientY;
                             lastClientX = e.clientX;
                             lastClientY = e.clientY;
                             e.preventDefault();
@@ -68,10 +69,15 @@
                     cont.mm = function(e) {
 
                         if (pushed) {
-                            $(cont).css("pointer-events","none");
-                            (scroller = el.scroller||el).scrollLeft -= newScrollX = (- lastClientX + (lastClientX=e.clientX));
+
+                            scroller = el.scroller||el;
+                            let diff=Math.abs(firstY - e.clientY);
+                            if(diff>5){
+                                $(cont).css("pointer-events","none");
+                            }
+                            scroller.scrollLeft -= newScrollX = (- lastClientX + (lastClientX=e.clientX));
                             scroller.scrollTop -= newScrollY = (- lastClientY + (lastClientY=e.clientY));
-                            if (el == _document.body) {
+                            if (el === _document.body) {
                                 (scroller = _document.documentElement).scrollLeft -= newScrollX;
                                 scroller.scrollTop -= newScrollY;
                             }
