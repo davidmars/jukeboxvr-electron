@@ -613,12 +613,14 @@ class Casque {
                     let casque=Casque.getCasqueByDeviceId(device.id);
                     casque.adbConnected=true;
                     casque.refreshDisplay();
+                    casque._syncContenus();
 
                 });
                 tracker.on('remove', function (device) {
                     console.log('Device %s was unplugged', device.id)
                     let casque=Casque.getCasqueByDeviceId(device.id);
                     casque.adbConnected=false;
+                    casque.isSynchroBusy=false;
                     casque.refreshDisplay();
                 });
                 tracker.on('end', function () {
