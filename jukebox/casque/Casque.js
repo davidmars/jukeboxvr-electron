@@ -537,18 +537,19 @@ class Casque {
             const dialog = require('electron').remote.dialog;
             const options = {
                 type: 'question',
-                buttons: ['1', '2', '3', '4', '5', "annuler"],
+                buttons: ["annuler",'1', '2', '3', '4', '5'],
                 defaultId: 5,
                 title: 'Question',
                 message: 'Veuillez inquer le numéro du casque que vous vennez de brancher pour la première fois'
             };
             dialog.showMessageBox(null, options, (response) => {
-                if (response === 6) {
+                if (response === 0) {
                     return null;
-                }
-                else {
+                }else {
+                    let s = "000000" + response;
+                    s = s.substr(s.length-2);
                     Casque.configJson.casques[deviceId] = {
-                        "identifier":response + 1
+                        "identifier":s
                     };
                     Casque._saveConfig();
                     return Casque.getCasqueByDeviceId(deviceId);
