@@ -828,29 +828,15 @@ class Casque {
     }
 
     /**
-     * Copie le contenu sur tous les casques
-     * @param {ContenuModel} contenu
+     * Enregistre dans le json quels contenus sont sensés etre sur les casques
+     * @param {array} contenus Liste des fichiers à copier sur les casques
      */
-    static pushContenu(contenu){
-        if(!Casque.configJson.contenusCopied){
-            Casque.configJson.contenusCopied={}
-        }
-        Casque.configJson.contenusCopied[contenu.localFile]="1";
+    static setContenus(contenus){
+        console.log("setContenus");
+        Casque.configJson.contenusCopied=contenus;
         Casque._saveConfig();
     }
-    /**
-     * Supprime le contenu sur tous les casques
-     * @param {ContenuModel} contenu
-     */
-    static removeContenu(contenu){
-        if(!Casque.configJson.contenusCopied){
-            Casque.configJson.contenusCopied={}
-        }
-        if(Casque.configJson.contenusCopied[contenu.localFile]){
-            delete Casque.configJson.contenusCopied[contenu.localFile];
-        }
-        Casque._saveConfig();
-    }
+
 
 
     /**
@@ -914,7 +900,9 @@ class Casque {
      * @returns {boolean}
      */
     static isContenuCopied(contenu){
-        return Casque.configJson.contenusCopied[contenu.localFile]? true : false;
+        let r = Casque.configJson.contenusCopied[contenu.localFile]? true : false;
+        console.log("isContenuCopied",r);
+        return r
     }
 
     /**

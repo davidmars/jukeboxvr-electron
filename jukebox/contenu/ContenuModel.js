@@ -13,7 +13,7 @@ class ContenuModel {
         this.localFile=data.localFile;
         this.serverThumb=data.serverThumb;
         this.localThumb=data.localThumb;
-        this.isCopied=false;
+        this.isCopied=Casque.isContenuCopied(this);
         /**
          * Url absolue du fichier à jouer dans le système de fichiers
          * @type {string}
@@ -39,6 +39,7 @@ class ContenuModel {
     $display(){
         let me=this;
         let $template=window.ui.$template("jukebox/contenu/contenu.html");
+        $template.data("model",me);
         $template.find(".js-title").text(this.name);
         $template.find("img.card-img-top").attr("src",this.localThumbAbsolute);
         $template.on("click",function(e){
@@ -57,7 +58,7 @@ class ContenuModel {
             me.setIsCopied(!me.isCopied);
         });
 
-        me.setIsCopied(Casque.isContenuCopied(me));
+        //me.setIsCopied(Casque.isContenuCopied(me));
 
 
 
@@ -75,11 +76,18 @@ class ContenuModel {
         }else{
             this.$copied.removeClass("copied");
         }
-        if(this.isCopied){
-            Casque.pushContenu(this);
-        }else{
-            Casque.removeContenu(this);
-        }
+        let files={};
+        $(".contenu-card").each(function(){
+           if($(this).find(".copied").length>0){
+               /**
+                *
+                 * @type {ContenuModel}
+                */
+               let contenu=$(this).data("model");
+               files[contenu.localFile]=1;
+           }
+        });
+        Casque.setContenus(files);
     }
 
 }
