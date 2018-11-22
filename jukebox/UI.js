@@ -10,6 +10,7 @@ const remote = electron.remote;
  */
 class UI{
     constructor(){
+        let me=this;
         //injecte les icones svg
         let $svg=this.$template("jukebox/svg-collection/jukebox.svg");
         $body.append($svg);
@@ -17,7 +18,7 @@ class UI{
         let $nav=this.$template("jukebox/nav.html");
         $body.prepend($nav);
         $nav.on("click",".js-close-app",function(){
-           remote.getCurrentWindow().close();
+           me.exitApp();
         });
 
         //charge le catalogue
@@ -218,6 +219,13 @@ class UI{
 
     logLine(message){
         this.$logLine.text(message);
+    }
+
+    /**
+     * Ferme le programme
+     */
+    exitApp() {
+        remote.getCurrentWindow().close();
     }
 }
 module.exports = UI;

@@ -164,6 +164,14 @@ machine.on(EVENT_READY,function(){
     Casque.initAll();
 
 
+    //reinstall
+    $body.on("click","[href='#reinstall']",function(e){
+        if(confirm("êtes vous certain de vouloir réinitialiser toute l'installation?")){
+            machine.reInstall();
+        }
+    })
+
+
 
 });
 
