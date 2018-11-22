@@ -62,14 +62,12 @@ function createWindow () {
     });
     autoUpdater.on('download-progress', (progressObj) => {
         let log_message = "Download speed: " + progressObj.bytesPerSecond;
-        log_message = log_message + ' - Downloaded ' + Math.floor(progressObj.percent) + '%';
-        log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
         logg(log_message);
-        mainWindow.webContents.executeJavaScript('ui.logLine("mise à jour du programme en cours '+Math.floor(progressObj.percent)+'%")');
+        mainWindow.webContents.executeJavaScript('ui.logLine("mise à jour du programme en cours '+String(Math.floor(Number(progressObj.percent)))+'%")');
     });
     autoUpdater.on('update-downloaded', (info) => {
         logg('Update downloaded');
-        mainWindow.webContents.executeJavaScript('ui.logLine("mise à jour du programme réussie")');
+        mainWindow.webContents.executeJavaScript('ui.logLine("Mise à jour réussie, veuillez redémarrer.")');
         //app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
         //app.exit(0);
     });
