@@ -1,6 +1,6 @@
 {
   "name": "jukeboxvr-electron",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Rendez-vous sur JUKEBOXVR.FR",
   "main": "main.js",
   "scripts": {
