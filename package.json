@@ -1,6 +1,6 @@
 {
   "name": "jukeboxvr-electron",
-  "version": "1.2.6",
+  "version": "1.2.8",
   "description": "Rendez-vous sur JUKEBOXVR.FR",
   "main": "main.js",
   "scripts": {
@@ -82,8 +82,9 @@
     "electron-log": "^2.2.17",
     "electron-updater": "^3.1.2",
     "event-emitter-es6": "^1.1.5",
-    "jquery": "^3.3.1",
     "express": "^4.15.2",
+    "jquery": "^3.3.1",
+    "rimraf": "^2.6.2",
     "socket.io": "^2.1.1"
   }
 }

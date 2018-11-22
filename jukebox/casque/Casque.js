@@ -648,6 +648,9 @@ class Casque {
             let identifier = socket.handshake.address.toString().substring(socket.handshake.address.toString().length-2 , socket.handshake.address.toString().length);
             console.log("device connected " + identifier);
             let casque = Casque.getCasqueByIdentifier(identifier);
+            if(!casque){
+                return;
+            }
             casque.sockID = socket.id;
             io.to(socket.id).emit('setid', identifier );
 
@@ -754,8 +757,11 @@ class Casque {
 
             socket.on('disconnect', function(){
                 let casque = Casque.getCasqueByIdentifier(identifier);
-                casque.socketConnected = 0;
-                console.log('user disconnected '+ identifier);
+                if(casque){
+                    casque.socketConnected = 0;
+                    console.log('user disconnected '+ identifier);
+                }
+
             });
 
 
@@ -860,6 +866,8 @@ class Casque {
         }
 
         console.log("Synchro contenu ?");
+        console.log("Casque.configJson.contenusCopied",Casque.configJson.contenusCopied);
+        console.log("casque._files",casque._files);
 
         //ajoute les fichiers
         for (var file in Casque.configJson.contenusCopied) {
@@ -867,6 +875,7 @@ class Casque {
                 if(!this._fileExists(file)){
                     this.isSyncro=false;
                     if(this.adbConnected){
+                        console.log("a")
                         this.isSynchroBusy= true;
                         casque._adbPushFile(file);
                         return false;
@@ -882,6 +891,7 @@ class Casque {
                     if(this._fileExists(file)) {
                         this.isSyncro = false;
                         if(this.adbConnected) {
+                            console.log("b")
                             this.isSynchroBusy = true;
                             casque._adbDelete(casqueFile);
                             return false;
@@ -889,7 +899,7 @@ class Casque {
                     }
                 }
         }
-
+        console.log("c")
         this.isSyncro = true;
         this.refreshDisplay();
         return true;
