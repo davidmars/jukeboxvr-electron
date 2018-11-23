@@ -237,7 +237,6 @@ class Casque {
             console.log("copie "+filePath + "sur " + me.deviceId);
             console.log("File exist pas !");
             me.isSynchroBusy=true;
-            //TODO utiliser cette méthode pour la copie de fichiers
 
             Casque.adbClient.push(me.deviceId, window.machine.appStoragePath+"/"+filePath,'/sdcard/Download/'+filePath)
                 .then(function (transfer) {
@@ -258,6 +257,7 @@ class Casque {
                 })
                 .catch(function(error){
                     console.error("erreur transfer = ",error);
+                    Casque._initADB();
                     me.isSynchroBusy=false;
                     canUseSynchro = true;
                 });
@@ -292,6 +292,8 @@ class Casque {
                 else
                 {
                     console.log("delete = " ,err );
+                    me.isSynchroBusy=false;
+                    canUseSynchro = true;
                 }
 
 
@@ -414,10 +416,8 @@ class Casque {
         }
         if(this.socketConnected>0){
             this.$socket.addClass("active");
-            this.$el.removeClass("disabled")
         }else{
             this.$socket.removeClass("active");
-            this.$el.addClass("disabled");
         }
         if(this.isSynchroBusy){
             this.$synchroBusy.addClass("active");
@@ -426,12 +426,18 @@ class Casque {
         }
         if(this.isSyncro){
             this.$synchro.addClass("active");
-            this.$el.removeClass("disabled");
         }else{
             this.$el.removeClass("selected");
             this.$synchro.removeClass("active");
+        }
+
+        if ( this.socketConnected>0 && this.isSyncro)
+        {
+            this.$el.removeClass("disabled");
+        }else{
             this.$el.addClass("disabled");
         }
+
     }
 
     /**
@@ -598,7 +604,7 @@ class Casque {
 
             Casque._initSocket();
 
-        }, 100);
+        }, 1000);
 
     }
 
@@ -704,15 +710,26 @@ class Casque {
                         casque.totalTime = json.totalPlaytime;
                     }
 
+
                     if ( json.fileList && json.fileList.length)
                     {
                         casque._files =json.fileList;
                         for ( let i = 0 ; i<casque._files.length ;  i++)
                         {
                             casque._files[i] =casque._files[i].split("\\").join("/");
-
                         }
                     }
+                    else
+                    {
+                        casque._files = null;
+                    }
+
+                    if ( json.msg === "Application Pause")
+                    {
+                        casque.socketConnected=0;
+                    }
+
+
 
                     casque._syncContenus();
 
@@ -804,6 +821,7 @@ class Casque {
         console.log("setFilesOnCasques");
         Casque.configJson.contenusCopied=contenus;
         Casque._saveConfig();
+
     }
 
 
@@ -813,14 +831,12 @@ class Casque {
      */
     _syncContenus(){
         let casque=this;
+        let localsynchro = true;
 
-
-        if ( this.isSynchroBusy ||  this._files === null || canUseSynchro === false)
+        if ( this.isSynchroBusy ||  this._files === null)
         {
             return false;
         }
-
-        this.isSyncro = true;
 
         //console.log("Synchro contenu ?");
         //console.log("Casque.configJson.contenusCopied",Casque.configJson.contenusCopied);
@@ -830,7 +846,12 @@ class Casque {
         for (var file in Casque.configJson.contenusCopied) {
             if (Casque.configJson.contenusCopied.hasOwnProperty(file)) {
                 if(!this._fileExists(file)){
-                    this.isSyncro=false;
+                    localsynchro = false;
+                    if ( canUseSynchro === false )
+                    {
+                        this.isSyncro = false;
+                        return false;
+                    }
                     if(this.adbConnected){
                         console.log("Ajout de contenu");
                         this.isSynchroBusy= true;
@@ -840,6 +861,7 @@ class Casque {
                         return false;
                     }
                 }
+
             }
         }
 
@@ -848,7 +870,12 @@ class Casque {
         for (var casqueFile of casque._files) {
                 if (!Casque.configJson.contenusCopied[casqueFile]) {
                     if(this._fileExists(file)) {
-                        this.isSyncro = false;
+                        localsynchro = false;
+                        if ( canUseSynchro === false )
+                        {
+                            this.isSyncro = false;
+                            return false;
+                        }
                         if(this.adbConnected) {
                             console.log("Suppression contenu");
                             this.isSynchroBusy = true;
@@ -856,11 +883,14 @@ class Casque {
                             casque._adbDelete(casqueFile);
                             return false;
                         }
+
                     }
                 }
         }
 
+        this.isSyncro=localsynchro;
         console.log("Synchro Ok");
+
 
 
         this.refreshDisplay();
@@ -877,7 +907,7 @@ class Casque {
      */
     static isContenuCopied(contenu){
         let r = Casque.configJson.contenusCopied[contenu.localFile]? true : false;
-        console.log("isContenuCopied",r);
+        //console.log("isContenuCopied",r);
         return r
     }
 

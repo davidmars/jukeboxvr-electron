@@ -154,7 +154,7 @@ class Sync extends EventEmitter{
                 machinename:me.machine.name,
             },
             success:function(data){
-                console.log(data);
+                //console.log(data);
                 successCb(data);
             },error:function(){
                 errorCb();
