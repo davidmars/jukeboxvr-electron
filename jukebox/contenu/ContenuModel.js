@@ -87,7 +87,7 @@ class ContenuModel {
                files[contenu.localFile]=1;
            }
         });
-        Casque.setContenus(files);
+        Casque.setFilesOnCasques(files);
     }
 
 }

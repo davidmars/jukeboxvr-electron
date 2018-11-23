@@ -56,7 +56,7 @@ class UI{
             Casque.pauseAllSelected();
         });
         $btnPlayAll.on("click",function(){
-            Casque.pauseAllSelected();
+            Casque.playAllSelected();
         });
     }
 

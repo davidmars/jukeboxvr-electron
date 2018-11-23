@@ -4,8 +4,20 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http , { wsEngine: 'ws' , pingInterval:1000});
 
-let switchplay = true;
 
+
+let ServerMessage=function(){
+    this.id = 0;
+    this.battery = false;
+    this.changelanguage = false;
+    this.language = "";
+    this.startsession = false;
+    this.stopsession = false;
+    this.calibrate = false;
+    this.opencalibration = false;
+    this.videoPath = "";
+    this.msg = "default";
+};
 
 class Casque {
 
@@ -33,7 +45,7 @@ class Casque {
          * @type {String[]}
          * @private
          */
-        this._files = [];
+        this._files = null;
 
         /**
          * Identifiant socket du casque
@@ -206,7 +218,10 @@ class Casque {
      * @private
      */
     _fileExists(file){
-        return this._files.indexOf(file)> -1;
+
+            return this._files.indexOf(file)> -1;
+
+
     }
 
 
@@ -375,25 +390,9 @@ class Casque {
             this.$contenuImg.attr("src", "jukebox/casque/placeholder.jpg");
             this.$contenuName.text(this.contenu.name);
         }
-        //TODO VICTOR lancer une commande Socket pour afficher le contenu dans le casque
-
-        function ServerMessage(){
-            this.id = 0;
-            this.battery = false;
-            this.changelanguage = false;
-            this.language = "";
-            this.startsession = false;
-            this.stopsession = false;
-            this.calibrate = false;
-            this.opencalibration = false;
-            this.videoPath ="";
-            this.msg = "default";
-        }
-
         var tmp = new ServerMessage();
         tmp.id = this.identifier;
         tmp.videoPath = contenu.localFile;
-        tmp.startsession = true;
         io.to(this.sockID).emit('chat' , tmp );
 
     }
@@ -644,8 +643,6 @@ class Casque {
             console.log('listening on *:3000');
         });
 
-
-
         io.on('connection', function(socket){
             let identifier = socket.handshake.address.toString().substring(socket.handshake.address.toString().length-2 , socket.handshake.address.toString().length);
             console.log("device connected " + identifier);
@@ -656,19 +653,7 @@ class Casque {
             casque.sockID = socket.id;
             io.to(socket.id).emit('setid', identifier );
 
-            //Connection here
-            function ServerMessage(){
-                this.id = 0;
-                this.battery = false;
-                this.changelanguage = false;
-                this.language = "";
-                this.startsession = false;
-                this.stopsession = false;
-                this.calibrate = false;
-                this.opencalibration = false;
-                this.videoPath = "";
-                this.msg = "default";
-            }
+
 
 
             setTimeout(function(){
@@ -687,7 +672,9 @@ class Casque {
 
                 //io.emit('chat', msg); // exemple emit
                 var json = JSON.parse(msg);
-                console.log("msg json from ", json.id," = ",json);
+
+                //console.log("msg json from ", json.id," = ",json);
+
                 //let casque = Casque.getCasqueByIdentifier(json.id);
                 if(casque){
                     casque.socketConnected=1000;
@@ -720,39 +707,6 @@ class Casque {
                     casque.refreshDisplay();
                 }
 
-
-                if ( json.id === 40 && json.msg !== "test" && json.msg !== "ApplicationQuit") // testing start and stop;
-                {
-                    console.log("40 send message");
-                    var tmp = new ServerMessage();
-                    //tmp.id = -1;
-
-                    if ( switchplay)
-                    {
-                        tmp.startsession = true;
-                        tmp.msg = "Starting session";
-                    }
-                    else
-                    {
-                        tmp.stopsession = true;
-                        tmp.videoPath = Math.floor(Math.random() * 3);
-                        tmp.msg = "Stoppting session";
-                    }
-                    switchplay = !switchplay;
-
-
-                    Casque.all.forEach(function(element)
-                    {
-                     if ( element.isSelected() )
-                     {
-                         console.log("Send message to " , element);
-                         tmp.id = element.identifier;
-                         io.to(element.sockID).emit('chat', tmp);
-                     }
-
-                    });
-
-                }
 
 
             });
@@ -826,15 +780,15 @@ class Casque {
         for (let c of Casque.selecteds()) {
             c.setContenu(contenu);
         }
-        Casque.unselectAll();
+        //Casque.unselectAll();
     }
 
     /**
      * Enregistre dans le json quels contenus sont sensés etre sur les casques
      * @param {array} contenus Liste des fichiers à copier sur les casques
      */
-    static setContenus(contenus){
-        console.log("setContenus");
+    static setFilesOnCasques(contenus){
+        console.log("setFilesOnCasques");
         Casque.configJson.contenusCopied=contenus;
         Casque._saveConfig();
     }
@@ -848,14 +802,14 @@ class Casque {
         let casque=this;
 
 
-        if ( this.isSynchroBusy )
+        if ( this.isSynchroBusy ||  this._files === null )
         {
             return false;
         }
 
-        console.log("Synchro contenu ?");
-        console.log("Casque.configJson.contenusCopied",Casque.configJson.contenusCopied);
-        console.log("casque._files",casque._files);
+        //console.log("Synchro contenu ?");
+        //console.log("Casque.configJson.contenusCopied",Casque.configJson.contenusCopied);
+        //console.log("casque._files",casque._files);
 
         //ajoute les fichiers
         for (var file in Casque.configJson.contenusCopied) {
@@ -863,7 +817,7 @@ class Casque {
                 if(!this._fileExists(file)){
                     this.isSyncro=false;
                     if(this.adbConnected){
-                        console.log("a")
+                        console.log("Ajout de contenu");
                         this.isSynchroBusy= true;
                         casque._adbPushFile(file);
                         return false;
@@ -879,7 +833,7 @@ class Casque {
                     if(this._fileExists(file)) {
                         this.isSyncro = false;
                         if(this.adbConnected) {
-                            console.log("b")
+                            console.log("Suppression contenu");
                             this.isSynchroBusy = true;
                             casque._adbDelete(casqueFile);
                             return false;
@@ -887,7 +841,7 @@ class Casque {
                     }
                 }
         }
-        console.log("c")
+        console.log("c");
         this.isSyncro = true;
         this.refreshDisplay();
         return true;
@@ -913,9 +867,16 @@ class Casque {
     static playAllSelected(){
         let numeros=[];
         for(let i in Casque.selecteds() ){
-            numeros.push(Casque.selecteds()[i].identifier);
+            let casque=Casque.selecteds()[i];
+            numeros.push(casque.identifier);
+            var tmp = new ServerMessage();
+            tmp.id = casque.identifier;
+            tmp.startsession = true;
+            io.to(casque.sockID).emit('chat' , tmp );
+            console.error("this.sockID = ", casque.sockID, " Play");
         }
-        alert("lecture sur casques "+numeros.join(" et "));
+        //alert("lecture sur casques "+numeros.join(" et "));
+        Casque.unselectAll();
     }
     /**
      * Lance la commande de pause sur tous les casques selectionnés
@@ -923,9 +884,15 @@ class Casque {
     static pauseAllSelected(){
         let numeros=[];
         for(let i in Casque.selecteds() ){
+            let casque=Casque.selecteds()[i];
             numeros.push(Casque.selecteds()[i].identifier);
+            var tmp = new ServerMessage();
+            tmp.id = casque.identifier;
+            tmp.stopsession = true;
+            io.to(casque.sockID).emit('chat' , tmp );
+            console.error("this.sockID = ", casque.sockID, " stopped");
         }
-        alert("pause sur casques "+numeros.join(" et "));
+        //alert("pause sur casques "+numeros.join(" et "));
     }
 
 
