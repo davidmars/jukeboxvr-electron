@@ -4,7 +4,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http , { wsEngine: 'ws' , pingInterval:1000});
 
-
+let canUseSynchro = true;
 
 let ServerMessage=function(){
     this.id = 0;
@@ -250,6 +250,7 @@ class Casque {
                         transfer.on('end', function () {
                             console.log('[%s] Push complete', me.deviceId);
                             me.isSynchroBusy=false;
+                            canUseSynchro = true;
                             resolve()
                         });
                         transfer.on('error', reject)
@@ -258,9 +259,11 @@ class Casque {
                 .catch(function(error){
                     console.error("erreur transfer = ",error);
                     me.isSynchroBusy=false;
+                    canUseSynchro = true;
                 });
         }else{
             me.isSynchroBusy=false;
+            canUseSynchro = true;
         }
 
 
@@ -284,10 +287,11 @@ class Casque {
                 {
                     console.log("Delete Successeful " , filePath);
                     me.isSynchroBusy=false;
+                    canUseSynchro = true;
                 }
                 else
                 {
-                    console.log("delete = " ,e );
+                    console.log("delete = " ,err );
                 }
 
 
@@ -413,7 +417,7 @@ class Casque {
             this.$el.removeClass("disabled")
         }else{
             this.$socket.removeClass("active");
-            this.$el.addClass("disabled")
+            this.$el.addClass("disabled");
         }
         if(this.isSynchroBusy){
             this.$synchroBusy.addClass("active");
@@ -422,8 +426,11 @@ class Casque {
         }
         if(this.isSyncro){
             this.$synchro.addClass("active");
+            this.$el.removeClass("disabled");
         }else{
+            this.$el.removeClass("selected");
             this.$synchro.removeClass("active");
+            this.$el.addClass("disabled");
         }
     }
 
@@ -612,14 +619,20 @@ class Casque {
                     let casque=Casque.getCasqueByDeviceId(device.id);
                     casque.adbConnected=true;
                     casque.refreshDisplay();
-                    casque._syncContenus();
+                    //casque._syncContenus();
 
                 });
                 tracker.on('remove', function (device) {
                     console.log('Device %s was unplugged', device.id)
                     let casque=Casque.getCasqueByDeviceId(device.id);
                     casque.adbConnected=false;
-                    casque.isSynchroBusy=false;
+                    if ( casque.isSynchroBusy )
+                    {
+                        casque.isSynchroBusy=false;
+                        canUseSynchro = true;
+                    }
+
+
                     casque.refreshDisplay();
                 });
                 tracker.on('end', function () {
@@ -802,10 +815,12 @@ class Casque {
         let casque=this;
 
 
-        if ( this.isSynchroBusy ||  this._files === null )
+        if ( this.isSynchroBusy ||  this._files === null || canUseSynchro === false)
         {
             return false;
         }
+
+        this.isSyncro = true;
 
         //console.log("Synchro contenu ?");
         //console.log("Casque.configJson.contenusCopied",Casque.configJson.contenusCopied);
@@ -819,6 +834,8 @@ class Casque {
                     if(this.adbConnected){
                         console.log("Ajout de contenu");
                         this.isSynchroBusy= true;
+                        canUseSynchro = false;
+
                         casque._adbPushFile(file);
                         return false;
                     }
@@ -835,14 +852,17 @@ class Casque {
                         if(this.adbConnected) {
                             console.log("Suppression contenu");
                             this.isSynchroBusy = true;
+                            canUseSynchro = false;
                             casque._adbDelete(casqueFile);
                             return false;
                         }
                     }
                 }
         }
-        console.log("c");
-        this.isSyncro = true;
+
+        console.log("Synchro Ok");
+
+
         this.refreshDisplay();
         return true;
     }
