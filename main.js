@@ -15,7 +15,7 @@ function createWindow () {
     // and load the index.html of the app.
     mainWindow.loadFile('index.html');
 
-    if(true || isDevelopment){
+    if(isDevelopment){
         //déplace la fenetre sur 2 eme écran
         if(electron.screen.getAllDisplays().length>1){
             mainWindow.setPosition(electron.screen.getAllDisplays()[1].bounds.x,0);

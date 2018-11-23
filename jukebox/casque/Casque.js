@@ -257,7 +257,6 @@ class Casque {
                 })
                 .catch(function(error){
                     console.error("erreur transfer = ",error);
-                    Casque._initADB();
                     me.isSynchroBusy=false;
                     canUseSynchro = true;
                 });
@@ -282,7 +281,7 @@ class Casque {
 
             Casque.adbClient.shell(me.deviceId, 'rm -f '+'/sdcard/Download/'+filePath, function(err, output){
 
-                console.log("delete outpout" , output );
+                //console.log("delete outpout" , output );
                 if ( err === null )
                 {
                     console.log("Delete Successeful " , filePath);
@@ -407,8 +406,13 @@ class Casque {
      * Rafraichit l'affichage html du casque
      */
     refreshDisplay() {
-        this.displayBattery();
-        this.displayPlayProgress();
+
+        if ( this.socketConnected > 0 )
+        {
+            this.displayBattery();
+            this.displayPlayProgress();
+        }
+
         if(this.adbConnected){
             this.$adb.addClass("active");
         }else{
@@ -833,8 +837,14 @@ class Casque {
         let casque=this;
         let localsynchro = true;
 
-        if ( this.isSynchroBusy ||  this._files === null)
+        if ( this.isSynchroBusy )
         {
+            return false;
+        }
+
+        if ( this._files === null )
+        {
+            this.isSyncro = false;
             return false;
         }
 
