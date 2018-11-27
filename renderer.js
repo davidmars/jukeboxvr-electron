@@ -123,7 +123,7 @@ machine.on(EVENT_READY,function(){
     sync.on(EVENT_ERROR,function(err){
         document.title="Sync "+err;
         logs.error(err);
-        ui.goScreen("splash-screen");
+        //ui.goScreen("splash-screen");
         ui.$navSync.removeClass("syncing");
     });
     sync.on("EVENT_READY",function(err){

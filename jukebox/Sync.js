@@ -112,9 +112,8 @@ class Sync extends EventEmitter{
             },
             function(){
                 console.error("synchronisation impossible");
-                console.error("impossible de télécharger "+me.syncUrl)
+                console.error("impossible de télécharger "+me.syncUrl);
                 me.emit(EVENT_ERROR,"impossible de télécharger "+me.syncUrl);
-
                 if(me.isOnline!==false){
                     me.emit(EVENT_OFFLINE);
                     me.isOnline=false;
