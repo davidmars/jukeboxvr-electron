@@ -1,8 +1,8 @@
-const FileSystemUtils = require("../../utils/FileSystemUtils");
 const fs = require("fs");
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http , { wsEngine: 'ws' , pingInterval:1000});
+const CasqueModel = require('jukebox-js-libs/CasqueModel');
 
 let canUseSynchro = true;
 
@@ -19,95 +19,16 @@ let ServerMessage=function(){
     this.msg = "default";
 };
 
-class Casque {
+class Casque extends CasqueModel{
 
     constructor(identifier, deviceId) {
+        super(identifier, deviceId);
 
         let me=this;
 
         Casque.all.push(this);
         Casque.allByDeviceId[deviceId] = this;
         Casque.allByIdentifier[identifier] = this;
-
-        /**
-         * Identifiant du casque
-         * @type {string}
-         */
-        this.identifier = identifier;
-        /**
-         * Identifiant adb
-         * @type {string}
-         */
-        this.deviceId = deviceId;
-
-        /**
-         * Liste des fichiers présents sur le casque
-         * @type {String[]}
-         * @private
-         */
-        this._files = null;
-
-        /**
-         * Identifiant socket du casque
-         * @type {int}
-         */
-        this.sockID = 0;
-
-
-        /**
-         * Contenu en cours de lecture
-         * @type {ContenuModel}
-         */
-        this.contenu = null;
-
-        /**
-         * position de lecture en secondes
-         * @type {number}
-         */
-        this.playTime = 0;
-
-        /**
-         * Duréen en seconde de la lecture
-         * @type {number}
-         */
-        this.totalTime = 120;
-
-        /**
-         * Niveau de batterie de 0 à 100
-         * @type {number}
-         */
-        this.batteryLevel = 0;
-        /**
-         * Est en cours de charge ou non
-         * @type {boolean}
-         */
-        this.isCharging = true;
-        /**
-         * Si true le casque est connecté en ADB
-         * @type {boolean}
-         */
-        this.adbConnected=false;
-        /**
-         * Si > 0 c'est que le socket semble fonctionner
-         * @type {int}
-         */
-        this.socketConnected=0;
-
-
-        /**
-         * true si tous les fichiers sont copiés sur le casque
-         * @type {boolean}
-         */
-        this.isSyncro=false;
-
-
-        /**
-         * true si un ou des fichiers sont en cours de copie
-         * @type {boolean}
-         */
-        this.isSynchroBusy=false;
-
-
 
 
 

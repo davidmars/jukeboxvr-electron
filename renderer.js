@@ -4,7 +4,7 @@
 
 const {app, BrowserWindow} = require('electron');
 const electron = require('electron');
-require("./jukebox/dragscroll");
+require("jukebox-js-libs/dragscroll");
 
 //ne pas afficher les message de sécurité relous
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS=true;
@@ -46,7 +46,7 @@ if(isDevelopment){
 
 
 //confs
-const Conf=require("./jukebox/Conf");
+const Conf=require("jukebox-js-libs/Conf");
 
 let confLocal=new Conf();
 confLocal.serverRoot="http://localhost/github/jukebox-vr/fr";
@@ -60,7 +60,7 @@ confOnline.appDirectoryStorageName="jukeboxvr/prod";
 window.conf=confOnline;
 
 //logs
-var Logs = require("./utils/Logs");
+var Logs = require("jukebox-js-libs/utils/Logs");
 let logs=window.logs=new Logs();
 
 logs.on(EVENT_CHANGE,function(){
@@ -68,7 +68,7 @@ logs.on(EVENT_CHANGE,function(){
 });
 
 //machine
-const Machine = require('./utils/Machine.js');
+const Machine = require('jukebox-js-libs/utils/Machine.js');
 let machine=window.machine=new Machine();
 
 
@@ -81,7 +81,7 @@ machine.on(EVENT_READY,function(){
     }else{
         $body.addClass("prod");
     }
-    const WebServer=require("./jukebox/WebServer");
+    const WebServer=require("jukebox-js-libs/WebServer");
     window.webServer = new WebServer();
 
     //UI
@@ -107,7 +107,7 @@ machine.on(EVENT_READY,function(){
     logs.log("Les fichiers de l'application sont stockés dans "+appStorage);
 
     //------------- synchro ------------------------
-    var Sync=require("./jukebox/Sync");
+    var Sync=require("jukebox-js-libs/Sync");
     let sync=new Sync(window.webServer.urlSynchro,machine);
     sync.on(EVENT_UPDATED,function(){
         logs.success("Mise à jour réussie");
